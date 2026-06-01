@@ -79,9 +79,9 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#0b0b10;font-famil
     <div class="tsep"></div>
     <div class="live"><span class="dot"></span><span class="ltxt">SHOP FLOOR · LIVE</span></div>
     <div class="sp"></div>
-    <div class="stat"><div class="sn red" id="s-late">--</div><div class="sl">Late</div></div>
-    <div class="stat"><div class="sn" id="s-total">--</div><div class="sl">In Progress</div></div>
-    <div class="stat"><div class="sn amber" id="s-hi">--</div><div class="sl">High Priority</div></div>
+    <div class="stat"><div class="sn red" id="s-late"></div><div class="sl">Late</div></div>
+    <div class="stat"><div class="sn" id="s-total"></div><div class="sl">In Progress</div></div>
+    <div class="stat"><div class="sn amber" id="s-hi"></div><div class="sl">High Priority</div></div>
     <span class="upd" id="upd"></span>
   </div>
   <div class="leg">
@@ -89,7 +89,7 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#0b0b10;font-famil
     <span class="li"><span class="ld" style="background:#c9a830"></span>Moderate priority job</span>
     <span class="li"><span class="lwo"></span>Work order</span>
     <span class="li"><span class="ld" style="background:rgba(255,64,64,.2);outline:1px solid rgba(255,64,64,.5)"></span>Overdue</span>
-    <span class="note">Top 10 per station · sorted late first · tap ▾ for more</span>
+    <span class="note">Top 10 per station · auto-updated hourly by GitHub Actions · sorted late first</span>
   </div>
   <div class="board" id="board"></div>
 </div>
@@ -102,9 +102,243 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#0b0b10;font-famil
   </div>
 </div>
 <script>
+const DATA_UPDATED = 'June 01, 2026 — 06:29 PM';
+const STATS = {late:143,total:187,hi:3};
+
+const RAW={
+"Welding":[
+  {n:"2191-8",p:"Moderate",d:"2026-04-30",l:true},
+  {n:"2086-1",p:"Moderate",d:"2026-05-05",l:true},
+  {n:"7670",p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8049",p:"Moderate",d:"2026-05-22",l:true},
+  {n:"8869",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8421",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8865",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8882",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8863",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8862",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8418",p:"Moderate",d:"2026-06-05",l:true},
+  {n:"WO-1657",p:"Moderate",d:"2026-05-05",l:true,wo:true},
+],
+"Weld Ag/RACS":[
+  {n:"1989-1",p:"Moderate",d:"2026-04-27",l:true},
+  {n:"2005-1",p:"Moderate",d:"2026-04-27",l:true},
+  {n:"1678-1",p:"Moderate",d:"2026-04-29",l:true},
+  {n:"2046-1",p:"Moderate",d:"2026-04-30",l:true},
+  {n:"2096-1",p:"Moderate",d:"2026-05-05",l:true},
+  {n:"2096-2",p:"Moderate",d:"2026-05-05",l:true},
+  {n:"2118-1",p:"Moderate",d:"2026-05-07",l:true},
+  {n:"2118-2",p:"Moderate",d:"2026-05-07",l:true},
+  {n:"2124-1",p:"Moderate",d:"2026-05-07",l:true},
+  {n:"2332-1 - 2",p:"Moderate",d:"2026-05-07",l:true},
+  {n:"2332-2 - 2",p:"Moderate",d:"2026-05-07",l:true},
+  {n:"2066-1",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2066-2",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2066-3",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2066-4",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2066-5",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2066-6",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2066-7",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2066-8",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2145-1",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2175-1",p:"Moderate",d:"2026-05-13",l:true},
+  {n:"2175-2",p:"Moderate",d:"2026-05-13",l:true},
+  {n:"2175-3",p:"Moderate",d:"2026-05-13",l:true},
+  {n:"2208-1",p:"Moderate",d:"2026-05-18",l:true},
+  {n:"2239-1",p:"Moderate",d:"2026-05-19",l:true},
+  {n:"2282-1",p:"Moderate",d:"2026-05-25",l:true},
+  {n:"2282-2",p:"Moderate",d:"2026-05-25",l:true},
+  {n:"2265-1",p:"Moderate",d:"2026-06-04",l:true},
+  {n:"2265-2",p:"Moderate",d:"2026-06-04",l:true},
+  {n:"1881-1",p:"Moderate",d:"2026-06-09",l:true},
+  {n:"2536-2",p:"Moderate",d:"2026-06-17",l:true},
+  {n:"2395-1",p:"Moderate",d:"2026-06-17",l:true},
+  {n:"2417-1",p:"Moderate",d:"2026-06-04",l:false},
+  {n:"2456-1 - 2",p:"Moderate",d:"2026-06-09",l:false},
+  {n:"2361-1",p:"Moderate",d:"2026-06-15",l:false},
+  {n:"2361-2",p:"Moderate",d:"2026-06-15",l:false},
+  {n:"2427-1",p:"Moderate",d:"2026-06-22",l:false},
+  {n:"2477-1",p:"Moderate",d:"2026-06-24",l:false},
+  {n:"2004-1",p:"Moderate",d:"2026-09-02",l:false},
+  {n:"2004-2",p:"Moderate",d:"2026-09-02",l:false},
+  {n:"2004-3",p:"Moderate",d:"2026-09-02",l:false},
+],
+"Brake & Bend":[
+  {n:"2345-4",p:"Moderate",d:"2026-05-14",l:true},
+  {n:"8468",p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8488",p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8020",p:"Moderate",d:"2026-05-22",l:true},
+  {n:"8890",p:"Moderate",d:"2026-05-22",l:true},
+  {n:"8906",p:"Moderate",d:"2026-05-22",l:true},
+  {n:"8915",p:"Moderate",d:"2026-05-22",l:true},
+  {n:"8921",p:"Moderate",d:"2026-05-22",l:true},
+  {n:"8928",p:"Moderate",d:"2026-05-22",l:true},
+  {n:"8930",p:"Moderate",d:"2026-05-22",l:true},
+  {n:"9318",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9326",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9338",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9350",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9351",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9700",p:"Moderate",d:"2026-06-05",l:false},
+  {n:"WO-1917",p:"Moderate",d:"2026-06-17",l:true,wo:true},
+],
+"Cut Bar & Chop Saw":[
+  {n:"2298-3",p:"Moderate",d:"2026-05-14",l:true},
+  {n:"2375-6",p:"Moderate",d:"2026-05-19",l:true},
+  {n:"2438-8",p:"Moderate",d:"2026-05-26",l:true},
+  {n:"2473-25",p:"Moderate",d:"2026-05-28",l:true},
+  {n:"2485-1",p:"Moderate",d:"2026-06-04",l:false},
+  {n:"2485-2",p:"Moderate",d:"2026-06-04",l:false},
+  {n:"2560-4",p:"Moderate",d:"2026-06-11",l:false},
+  {n:"1396-2",p:"Moderate",d:"2026-06-29",l:false},
+],
+"Hot For Coating":[
+  {n:"7408",p:"Moderate",d:"2026-05-01",l:true},
+  {n:"7923",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"8823",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2142-1",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2142-2",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2142-3",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2142-4",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2142-5",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2142-6",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"8011",p:"Moderate",d:"2026-05-12",l:true},
+  {n:"8690",p:"Moderate",d:"2026-05-13",l:true},
+  {n:"8144",p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8154",p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8338",p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8342",p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8361",p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8833",p:"Moderate",d:"2026-05-15",l:true},
+  {n:"9224",p:"Moderate",d:"2026-05-18",l:true},
+  {n:"9225",p:"Moderate",d:"2026-05-18",l:true},
+  {n:"2237-1",p:"Moderate",d:"2026-05-19",l:true},
+  {n:"8398",p:"Moderate",d:"2026-05-19",l:true},
+  {n:"8693",p:"Moderate",d:"2026-05-19",l:true},
+  {n:"2380-1",p:"Moderate",d:"2026-05-19",l:true},
+  {n:"2398-3",p:"Moderate",d:"2026-05-19",l:true},
+  {n:"8830",p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9142",p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9359",p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9361",p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9394",p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9395",p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9398",p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9415",p:"Moderate",d:"2026-05-20",l:true},
+  {n:"8408",p:"Moderate",d:"2026-05-21",l:true},
+  {n:"8697",p:"Moderate",d:"2026-05-25",l:true},
+  {n:"8716",p:"Moderate",d:"2026-05-25",l:true},
+  {n:"8718",p:"Moderate",d:"2026-05-25",l:true},
+  {n:"9490",p:"Moderate",d:"2026-05-25",l:true},
+  {n:"9578",p:"Moderate",d:"2026-05-25",l:true},
+  {n:"9107",p:"Moderate",d:"2026-05-26",l:true},
+  {n:"9204",p:"Moderate",d:"2026-05-26",l:true},
+  {n:"9147",p:"Moderate",d:"2026-05-27",l:true},
+  {n:"9149",p:"Moderate",d:"2026-05-28",l:true},
+  {n:"9152",p:"Moderate",d:"2026-05-28",l:true},
+  {n:"9155",p:"Moderate",d:"2026-05-28",l:true},
+  {n:"9199",p:"Moderate",d:"2026-05-28",l:true},
+  {n:"7499",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9131",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9151",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9160",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9163",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"2071-1",p:"Moderate",d:"2026-06-01",l:true},
+  {n:"8700",p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9208",p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9209",p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9480",p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9482",p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9484",p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9494",p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9506",p:"Moderate",d:"2026-06-02",l:true},
+  {n:"9229",p:"Moderate",d:"2026-06-01",l:false},
+  {n:"9393",p:"Moderate",d:"2026-06-04",l:false},
+  {n:"9396",p:"Moderate",d:"2026-06-04",l:false},
+  {n:"9226",p:"Moderate",d:"2026-06-05",l:false},
+  {n:"9210",p:"Moderate",d:"2026-06-08",l:false},
+  {n:"9397",p:"Moderate",d:"2026-06-08",l:false},
+  {n:"9487",p:"Moderate",d:"2026-06-08",l:false},
+  {n:"9495",p:"Moderate",d:"2026-06-08",l:false},
+  {n:"9498",p:"Moderate",d:"2026-06-08",l:false},
+  {n:"8834",p:"Moderate",d:"2026-06-17",l:false},
+  {n:"WO-1959",p:"Moderate",d:"2026-04-20",l:true,wo:true},
+  {n:"WO-1751",p:"Moderate",d:"2026-05-18",l:true,wo:true},
+  {n:"WO-1907",p:"Moderate",d:"2026-06-02",l:false,wo:true},
+],
+"Punch, Nip & Roll":[
+],
+"Turret":[
+],
+"Shear":[
+  {n:"2124-1",p:"Moderate",d:"2026-05-07",l:true},
+  {n:"2145-1",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"9295",p:"Moderate",d:"2026-06-26",l:false},
+],
+"Tube Laser":[
+  {n:"9837",p:"High",d:"2026-06-05",l:true},
+  {n:"9309",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9316",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9468",p:"Moderate",d:"2026-06-12",l:false},
+],
+"Sheet Laser":[
+  {n:"9681",p:"Moderate",d:"2026-06-05",l:true},
+  {n:"9703",p:"Moderate",d:"2026-06-05",l:true},
+  {n:"9704",p:"Moderate",d:"2026-06-05",l:true},
+  {n:"WO-1841",p:"Moderate",d:"2026-05-11",l:true,wo:true},
+  {n:"WO-1910",p:"Moderate",d:"2026-05-13",l:true,wo:true},
+  {n:"WO-1860",p:"Moderate",d:"2026-05-13",l:true,wo:true},
+  {n:"WO-1806",p:"Moderate",d:"2026-05-14",l:true,wo:true},
+],
+"Wire & Spot Weld":[
+],
+"Shipping":[
+  {n:"1781-1",p:"High",d:"2026-03-19",l:true},
+  {n:"2227-3",p:"High",d:"2026-05-18",l:true},
+  {n:"1686-1",p:"Moderate",d:"2026-02-12",l:true},
+  {n:"1471-3",p:"Moderate",d:"2026-02-13",l:true},
+  {n:"1701-1",p:"Moderate",d:"2026-03-19",l:true},
+  {n:"1701-2",p:"Moderate",d:"2026-03-19",l:true},
+  {n:"1701-3",p:"Moderate",d:"2026-03-19",l:true},
+  {n:"1766-1",p:"Moderate",d:"2026-03-26",l:true},
+  {n:"1906-1",p:"Moderate",d:"2026-04-09",l:true},
+  {n:"1905-2",p:"Moderate",d:"2026-04-16",l:true},
+  {n:"1978-1",p:"Moderate",d:"2026-04-16",l:true},
+  {n:"1921-1",p:"Moderate",d:"2026-04-20",l:true},
+  {n:"1970-2",p:"Moderate",d:"2026-04-23",l:true},
+  {n:"2129-1",p:"Moderate",d:"2026-04-30",l:true},
+  {n:"2298-1",p:"Moderate",d:"2026-05-14",l:true},
+  {n:"2298-2",p:"Moderate",d:"2026-05-14",l:true},
+  {n:"2210-1",p:"Moderate",d:"2026-05-18",l:true},
+  {n:"2371-2",p:"Moderate",d:"2026-05-26",l:true},
+  {n:"2421-2",p:"Moderate",d:"2026-05-28",l:true},
+  {n:"2421-3",p:"Moderate",d:"2026-05-28",l:true},
+  {n:"2585-15",p:"Moderate",d:"2026-06-09",l:true},
+  {n:"2626-8",p:"Moderate",d:"2026-06-11",l:true},
+  {n:"1521-1 - 2",p:"Moderate",d:"2026-06-15",l:true},
+  {n:"1521-2 - 2",p:"Moderate",d:"2026-06-15",l:true},
+  {n:"1250-3 - 2",p:"Moderate",d:"2026-06-01",l:false},
+  {n:"1250-5",p:"Moderate",d:"2026-06-01",l:false},
+  {n:"1250-6 - 2",p:"Moderate",d:"2026-06-01",l:false},
+  {n:"1250-7 - 2",p:"Moderate",d:"2026-06-01",l:false},
+  {n:"7310",p:"Moderate",d:"2026-06-12",l:false},
+  {n:"WO-1496",p:"Moderate",d:"2026-04-09",l:true,wo:true},
+  {n:"WO-1751",p:"Moderate",d:"2026-05-18",l:true,wo:true},
+  {n:"WO-1790",p:"Moderate",d:"2026-05-27",l:true,wo:true},
+],
+};
+
 const EMPS=['Jesse Halfpop','Trevor Johnson','Riley','Jennifer W.','Dan Fank','Jo Raffaele','Other'];
 const PORD={High:0,Moderate:1,Low:2};
 const PAGE=10;
+const WCS=[
+  {n:'Welding',c:'#7a1a1a'},{n:'Weld Ag/RACS',c:'#1a5a28'},
+  {n:'Brake & Bend',c:'#1a2a6b'},{n:'Cut Bar & Chop Saw',c:'#3a1a6b'},
+  {n:'Hot For Coating',c:'#7a4a0a'},{n:'Punch, Nip & Roll',c:'#6b1a4a'},
+  {n:'Turret',c:'#2a2a3a'},{n:'Shear',c:'#0e4a4a'},
+  {n:'Tube Laser',c:'#1a2a6b'},{n:'Sheet Laser',c:'#0e5a2a'},
+  {n:'Wire & Spot Weld',c:'#5a4a0a'},{n:'Shipping',c:'#1a5a1a'},
+];
 
 function srt(a){return[...a].sort((x,y)=>{
   const wx=(x.wo?1:0),wy=(y.wo?1:0);if(wx!==wy)return wx-wy;
@@ -114,172 +348,47 @@ function srt(a){return[...a].sort((x,y)=>{
 });}
 function fD(d){if(!d)return'';const t=new Date(d);return(t.getMonth()+1)+'/'+t.getDate();}
 
-// ── DATA — pulled fresh from Fulcrum via Claude MCP — 5/30/2026 ───────────
-const DATA_UPDATED = 'May 30, 2026 — 1:48 PM';
-const STATS = {late: 142, total: 185, hi: 2};
+const SORTED={},shown={};
+WCS.forEach(({n})=>{SORTED[n]=srt(RAW[n]||[]);shown[n]=PAGE;});
+document.getElementById('s-late').textContent=STATS.late;
+document.getElementById('s-total').textContent=STATS.total;
+document.getElementById('s-hi').textContent=STATS.hi;
+document.getElementById('upd').textContent='Data: '+DATA_UPDATED;
 
-const RAW={
-"Welding":[
-  {n:"2191-8",p:"Moderate",d:"2026-04-30",l:true},{n:"2086-1",p:"Moderate",d:"2026-05-05",l:true},
-  {n:"7670",p:"Moderate",d:"2026-05-15",l:true},{n:"8049",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8865",p:"Moderate",d:"2026-05-29",l:true},{n:"8869",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8421",p:"Moderate",d:"2026-05-29",l:true},{n:"7679",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8882",p:"Moderate",d:"2026-05-29",l:true},{n:"8418",p:"Moderate",d:"2026-06-05",l:true},
-  {n:"8862",p:"Moderate",d:"2026-05-29",l:false},
-  {n:"WO-1657",p:"Moderate",d:"2026-05-05",l:true,wo:true},
-],
-"Weld Ag/RACS":[
-  {n:"1989-1",p:"Moderate",d:"2026-04-27",l:true},{n:"2005-1",p:"Moderate",d:"2026-04-27",l:true},
-  {n:"1678-1",p:"Moderate",d:"2026-04-29",l:true},{n:"2046-1",p:"Moderate",d:"2026-04-30",l:true},
-  {n:"2096-1",p:"Moderate",d:"2026-05-05",l:true},{n:"2096-2",p:"Moderate",d:"2026-05-05",l:true},
-  {n:"2118-1",p:"Moderate",d:"2026-05-07",l:true},{n:"2118-2",p:"Moderate",d:"2026-05-07",l:true},
-  {n:"2124-1",p:"Moderate",d:"2026-05-07",l:true},{n:"2332-1-2",p:"Moderate",d:"2026-05-07",l:true},
-  {n:"2066-1",p:"Moderate",d:"2026-05-11",l:true},{n:"2145-1",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2239-1",p:"Moderate",d:"2026-05-19",l:true},{n:"2265-1",p:"Moderate",d:"2026-06-04",l:true},
-  {n:"1521-3",p:"Moderate",d:"2026-06-15",l:true},{n:"2395-1",p:"Moderate",d:"2026-06-17",l:true},
-  {n:"2424-1",p:"Moderate",d:"2026-06-08",l:false},{n:"1947-1",p:"Moderate",d:"2026-06-09",l:false},
-  {n:"2547-1",p:"Moderate",d:"2026-07-01",l:false},
-],
-"Brake & Bend":[
-  {n:"2345-4",p:"Moderate",d:"2026-05-14",l:true},{n:"8468",p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8488",p:"Moderate",d:"2026-05-15",l:true},{n:"8020",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8890",p:"Moderate",d:"2026-05-22",l:true},{n:"8906",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8915",p:"Moderate",d:"2026-05-22",l:true},{n:"8921",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8928",p:"Moderate",d:"2026-05-22",l:true},{n:"8930",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8860",p:"Moderate",d:"2026-05-29",l:true},{n:"9338",p:"Moderate",d:"2026-05-29",l:false},
-  {n:"9700",p:"Moderate",d:"2026-06-05",l:false},
-  {n:"WO-1917",p:"Moderate",d:"2026-06-17",l:true,wo:true},
-],
-"Cut Bar & Chop Saw":[
-  {n:"2298-3",p:"Moderate",d:"2026-05-14",l:true},{n:"2375-6",p:"Moderate",d:"2026-05-19",l:true},
-  {n:"2438-8",p:"Moderate",d:"2026-05-26",l:true},{n:"2473-25",p:"Moderate",d:"2026-05-28",l:true},
-  {n:"8860",p:"Moderate",d:"2026-05-29",l:true},{n:"2560-4",p:"Moderate",d:"2026-06-11",l:true},
-  {n:"2485-1",p:"Moderate",d:"2026-06-04",l:false},{n:"2485-2",p:"Moderate",d:"2026-06-04",l:false},
-  {n:"1396-2",p:"Moderate",d:"2026-06-29",l:false},
-],
-"Hot For Coating":[
-  {n:"2046-1",p:"Moderate",d:"2026-04-30",l:true},{n:"7408",p:"Moderate",d:"2026-05-01",l:true},
-  {n:"8823",p:"Moderate",d:"2026-05-11",l:true},{n:"8011",p:"Moderate",d:"2026-05-12",l:true},
-  {n:"8144",p:"Moderate",d:"2026-05-15",l:true},{n:"8338",p:"Moderate",d:"2026-05-15",l:true},
-  {n:"9224",p:"Moderate",d:"2026-05-18",l:true},{n:"9225",p:"Moderate",d:"2026-05-18",l:true},
-  {n:"8830",p:"Moderate",d:"2026-05-20",l:true},{n:"9394",p:"Moderate",d:"2026-05-20",l:true},
-  {n:"8697",p:"Moderate",d:"2026-05-25",l:true},{n:"9490",p:"Moderate",d:"2026-05-25",l:true},
-  {n:"9152",p:"Moderate",d:"2026-05-28",l:true},{n:"9131",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9393",p:"Moderate",d:"2026-06-04",l:true},{n:"9229",p:"Moderate",d:"2026-06-01",l:false},
-  {n:"WO-1907",p:"Moderate",d:"2026-06-02",l:false,wo:true},
-  {n:"WO-1751",p:"Moderate",d:"2026-05-18",l:true,wo:true},
-  {n:"WO-1959",p:"Moderate",d:"2026-04-20",l:true,wo:true},
-],
-"Punch, Nip & Roll":[
-  {n:"8860",p:"Moderate",d:"2026-05-29",l:true},
-],
-"Turret":[],
-"Shear":[
-  {n:"2124-1",p:"Moderate",d:"2026-05-07",l:true},{n:"2145-1",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"1521-3",p:"Moderate",d:"2026-06-15",l:true},{n:"1521-2-2",p:"Moderate",d:"2026-06-15",l:false},
-  {n:"1521-1-2",p:"Moderate",d:"2026-06-15",l:false},{n:"1396-2",p:"Moderate",d:"2026-06-29",l:false},
-],
-"Tube Laser":[
-  {n:"8860",p:"Moderate",d:"2026-05-29",l:true},{n:"9316",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9468",p:"Moderate",d:"2026-06-12",l:false},
-],
-"Sheet Laser":[
-  {n:"2395-1",p:"Moderate",d:"2026-06-17",l:true},
-  {n:"2424-1",p:"Moderate",d:"2026-06-08",l:false},{n:"2456-1-2",p:"Moderate",d:"2026-06-09",l:false},
-  {n:"1947-1",p:"Moderate",d:"2026-06-09",l:false},{n:"2361-1",p:"Moderate",d:"2026-06-15",l:false},
-  {n:"2361-2",p:"Moderate",d:"2026-06-15",l:false},{n:"2427-1",p:"Moderate",d:"2026-06-22",l:false},
-  {n:"2547-1",p:"Moderate",d:"2026-07-01",l:false},
-  {n:"WO-1806",p:"Moderate",d:"2026-05-14",l:true,wo:true},
-  {n:"WO-1841",p:"Moderate",d:"2026-05-11",l:true,wo:true},
-  {n:"WO-1910",p:"Moderate",d:"2026-05-13",l:true,wo:true},
-  {n:"WO-1860",p:"Moderate",d:"2026-05-13",l:true,wo:true},
-],
-"Wire & Spot Weld":[
-  {n:"2145-1",p:"Moderate",d:"2026-05-11",l:true},{n:"2265-2",p:"Moderate",d:"2026-06-04",l:true},
-  {n:"1521-3",p:"Moderate",d:"2026-06-15",l:true},{n:"2395-1",p:"Moderate",d:"2026-06-17",l:true},
-  {n:"1521-1-2",p:"Moderate",d:"2026-06-15",l:false},
-],
-"Shipping":[
-  {n:"1781-1",p:"High",d:"2026-03-19",l:true},{n:"2227-3",p:"High",d:"2026-05-18",l:true},
-  {n:"1686-1",p:"Moderate",d:"2026-02-12",l:true},{n:"1471-3",p:"Moderate",d:"2026-02-13",l:true},
-  {n:"1701-1",p:"Moderate",d:"2026-03-19",l:true},{n:"1701-2",p:"Moderate",d:"2026-03-19",l:true},
-  {n:"1701-3",p:"Moderate",d:"2026-03-19",l:true},{n:"1766-1",p:"Moderate",d:"2026-03-26",l:true},
-  {n:"1906-1",p:"Moderate",d:"2026-04-09",l:true},{n:"1905-2",p:"Moderate",d:"2026-04-16",l:true},
-  {n:"1978-1",p:"Moderate",d:"2026-04-16",l:true},{n:"2036-1",p:"Moderate",d:"2026-04-29",l:true},
-  {n:"2298-1",p:"Moderate",d:"2026-05-14",l:true},{n:"2371-2",p:"Moderate",d:"2026-05-26",l:true},
-  {n:"2421-2",p:"Moderate",d:"2026-05-28",l:true},{n:"2485-1",p:"Moderate",d:"2026-06-04",l:false},
-  {n:"WO-1751",p:"Moderate",d:"2026-05-18",l:true,wo:true},
-  {n:"WO-1790",p:"Moderate",d:"2026-05-27",l:true,wo:true},
-  {n:"WO-1496",p:"Moderate",d:"2026-04-09",l:true,wo:true},
-],
-};
-
-const WCS=[
-  {n:"Welding",c:"#7a1a1a"},{n:"Weld Ag/RACS",c:"#1a5a28"},
-  {n:"Brake & Bend",c:"#1a2a6b"},{n:"Cut Bar & Chop Saw",c:"#3a1a6b"},
-  {n:"Hot For Coating",c:"#7a4a0a"},{n:"Punch, Nip & Roll",c:"#6b1a4a"},
-  {n:"Turret",c:"#2a2a3a"},{n:"Shear",c:"#0e4a4a"},
-  {n:"Tube Laser",c:"#1a2a6b"},{n:"Sheet Laser",c:"#0e5a2a"},
-  {n:"Wire & Spot Weld",c:"#5a4a0a"},{n:"Shipping",c:"#1a5a1a"},
-];
-
-const SORTED={}, shown={};
-WCS.forEach(({n})=>{ SORTED[n]=srt(RAW[n]||[]); shown[n]=PAGE; });
-
-document.getElementById('s-late').textContent  = STATS.late;
-document.getElementById('s-total').textContent = STATS.total;
-document.getElementById('s-hi').textContent    = STATS.hi;
-document.getElementById('upd').textContent     = 'Data: ' + DATA_UPDATED;
-
-let assigns={}, curJob=null;
-
+let assigns={},curJob=null;
 function pCls(j){return j.wo?'wo':(j.p==='High'?'hi':'mo');}
 function pBadge(j){
   if(j.wo)return'<span class="bg bwo">WO</span>';
   if(j.p==='High')return'<span class="bg bhi">HIGH</span>';
   return'<span class="bg bmo">MOD</span>';
 }
-
 function render(){
   document.getElementById('board').innerHTML=WCS.map(({n,c})=>{
-    const all=SORTED[n], tot=all.length;
-    const lc=all.filter(j=>j.l).length;
-    const wc=all.filter(j=>j.wo).length;
-    const lim=Math.min(shown[n],tot);
-    const vis=all.slice(0,lim);
-    const rem=tot-lim;
-    const rows=tot===0
-      ?'<div class="cempty">No active jobs</div>'
-      :vis.map(j=>{
-          const a=assigns[j.n];
-          const safe=j.n.replace(/'/g,"\\'");
-          return`<div class="jrow ${pCls(j)} ${j.l?'late':''}">
-            <span class="jnum">${j.n}</span>
-            <span class="jright">
-              ${j.l?'<span class="bg blate">LATE</span>':''}
-              ${pBadge(j)}
-              <span class="jdue ${j.l?'late':''}">${fD(j.d)}</span>
-              <button class="jasgn ${a?'on':''}" onclick="openM('${safe}')">${a?a.split(' ')[0]:'+'}</button>
-            </span>
-          </div>`;
-        }).join('');
-    const moreBar=rem>0
-      ?`<div class="cmore" onclick="showMore('${n}')">&#9662; ${rem} more</div>`
-      :(lim>PAGE?`<div class="cmore" onclick="showLess('${n}')">&#9652; less</div>`:'');
-    const lbadge=lc>0?`<span class="clc">${lc}&#9888;</span>`:'';
-    const wbadge=wc>0?`<span class="cwo">${wc}WO</span>`:'';
+    const all=SORTED[n],tot=all.length;
+    const lc=all.filter(j=>j.l).length,wc=all.filter(j=>j.wo).length;
+    const lim=Math.min(shown[n],tot),vis=all.slice(0,lim),rem=tot-lim;
+    const rows=tot===0?'<div class="cempty">No active jobs</div>':vis.map(j=>{
+      const a=assigns[j.n],safe=j.n.replace(/'/g,"\\'");
+      return`<div class="jrow ${pCls(j)} ${j.l?'late':''}">
+        <span class="jnum">${j.n}</span>
+        <span class="jright">
+          ${j.l?'<span class="bg blate">LATE</span>':''}
+          ${pBadge(j)}
+          <span class="jdue ${j.l?'late':''}">${fD(j.d)}</span>
+          <button class="jasgn ${a?'on':''}" onclick="openM('${safe}')">${a?a.split(' ')[0]:'+'}</button>
+        </span>
+      </div>`;
+    }).join('');
+    const more=rem>0?`<div class="cmore" onclick="showMore('${n}')">&#9662; ${rem} more</div>`:(lim>PAGE?`<div class="cmore" onclick="showLess('${n}')">&#9652; less</div>`:'');
+    const lb=lc>0?`<span class="clc">${lc}&#9888;</span>`:'';
+    const wb=wc>0?`<span class="cwo">${wc}WO</span>`:'';
     return`<div class="col">
       <div class="accent" style="background:${c}"></div>
-      <div class="chdr">
-        <span class="cname">${n}</span>
-        <span class="cmeta"><span class="ctot">${tot}</span>${wbadge}${lbadge}</span>
-      </div>
-      <div class="cjobs">${rows}</div>
-      ${moreBar}
+      <div class="chdr"><span class="cname">${n}</span><span class="cmeta"><span class="ctot">${tot}</span>${wb}${lb}</span></div>
+      <div class="cjobs">${rows}</div>${more}
     </div>`;
   }).join('');
 }
-
 function showMore(n){shown[n]+=PAGE;render();}
 function showLess(n){shown[n]=PAGE;render();}
 function openM(name){
@@ -291,15 +400,9 @@ function openM(name){
   ).join('');
   document.getElementById('modal').classList.add('open');
 }
-function pickE(e){
-  if(curJob){if(e==='— Unassign')delete assigns[curJob];else assigns[curJob]=e;}
-  closeM();render();
-}
+function pickE(e){if(curJob){if(e==='— Unassign')delete assigns[curJob];else assigns[curJob]=e;}closeM();render();}
 function closeM(){document.getElementById('modal').classList.remove('open');curJob=null;}
-
-setInterval(()=>{
-  document.getElementById('clk').textContent=new Date().toLocaleTimeString('en-US',{hour12:false});
-},1000);
+setInterval(()=>{document.getElementById('clk').textContent=new Date().toLocaleTimeString('en-US',{hour12:false});},1000);
 document.getElementById('clk').textContent=new Date().toLocaleTimeString('en-US',{hour12:false});
 render();
 </script>
