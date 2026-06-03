@@ -37,25 +37,21 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#0b0b10;font-famil
 .clc{font-size:clamp(7px,0.72vw,10px);color:#ff4040;font-weight:bold}
 .cwo{font-size:clamp(7px,0.72vw,10px);color:#5dca9e;font-weight:bold}
 .cjobs{flex:1;padding:3px;display:flex;flex-direction:column;gap:2px;overflow:hidden;min-height:0}
-.jrow{display:flex;align-items:center;padding:4px 8px;border-left:3px solid #2a2a3a;background:#0f0f18;border-radius:2px;flex-shrink:0;gap:5px}
+.jrow{display:flex;align-items:center;padding:3px 7px;border-left:3px solid #2a2a3a;background:#0f0f18;border-radius:2px;flex-shrink:0;gap:4px}
 .jrow.hi{border-left-color:#E24B4A;background:#1a0d0d}
 .jrow.mo{border-left-color:#c9a830;background:#111118}
 .jrow.wo{border-left-color:#5dca9e;background:#0a1210}
 .jrow.late{outline:1px solid rgba(255,64,64,.28)}
 .jrow.hi.late{background:#1e0909}
-.jrow.wo.late{outline-color:rgba(93,202,158,.25)}
-.jnum{font-size:clamp(12px,1.2vw,17px);font-weight:bold;color:#FFFFFF;letter-spacing:.4px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.jright{display:flex;align-items:center;gap:4px;flex-shrink:0}
-.bg{font-size:clamp(6px,0.6vw,8px);padding:1px 4px;border-radius:2px;font-weight:bold;letter-spacing:.4px;white-space:nowrap}
-.bhi{background:rgba(226,75,74,.15);color:#ff7070;border:1px solid rgba(226,75,74,.4)}
-.bmo{background:rgba(201,168,48,.12);color:#c9a830;border:1px solid rgba(201,168,48,.3)}
-.blate{background:rgba(255,64,64,.12);color:#ff7070;border:1px solid rgba(255,64,64,.3)}
-.bwo{background:rgba(93,202,158,.12);color:#5dca9e;border:1px solid rgba(93,202,158,.3)}
-.jdue{font-size:clamp(9px,0.9vw,13px);font-weight:bold;color:#555;white-space:nowrap}
+.jrow.wo.late{outline-color:rgba(93,202,158,.22)}
+.jnum{font-size:clamp(11px,1.15vw,16px);font-weight:bold;color:#FFFFFF;letter-spacing:.3px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jdue{font-size:clamp(9px,0.85vw,12px);font-weight:bold;color:#555;white-space:nowrap;flex-shrink:0}
 .jdue.late{color:#ff5050}
-.jasgn{font-size:clamp(6px,0.62vw,9px);color:#2e2e3e;border:1px solid #1e1e2e;background:transparent;padding:1px 5px;border-radius:2px;cursor:pointer;font-family:inherit;white-space:nowrap}
-.jasgn:hover{color:#e8c840;border-color:#e8c840}
-.jasgn.on{color:#5dca9e;border-color:rgba(93,202,158,.4)}
+.jindic{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.jindic.hi{background:#E24B4A}
+.jindic.mo{background:#c9a830}
+.jindic.wo{background:#5dca9e}
+.late-dot{width:5px;height:5px;border-radius:50%;background:#ff4040;flex-shrink:0}
 .cmore{text-align:center;font-size:clamp(7px,0.68vw,10px);color:#252535;padding:2px 0;cursor:pointer;border-top:1px solid #141420;flex-shrink:0}
 .cmore:hover{color:#e8c840}
 .cempty{font-size:clamp(9px,0.85vw,12px);color:#1e1e28;text-align:center;flex:1;display:flex;align-items:center;justify-content:center}
@@ -77,19 +73,19 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#0b0b10;font-famil
     <div class="tsep"></div>
     <div class="clk" id="clk">--:--:--</div>
     <div class="tsep"></div>
-    <div class="live"><span class="dot"></span><span class="ltxt">SHOP FLOOR · LIVE</span></div>
+    <div class="live"><span class="dot"></span><span class="ltxt">SHOP FLOOR &middot; LIVE</span></div>
     <div class="sp"></div>
     <div class="stat"><div class="sn red" id="s-late"></div><div class="sl">Late</div></div>
-    <div class="stat"><div class="sn" id="s-total"></div><div class="sl">In Progress</div></div>
+    <div class="stat"><div class="sn" id="s-total"></div><div class="sl">Jobs</div></div>
     <div class="stat"><div class="sn amber" id="s-hi"></div><div class="sl">High Priority</div></div>
     <span class="upd" id="upd"></span>
   </div>
   <div class="leg">
-    <span class="li"><span class="ld" style="background:#E24B4A"></span>High priority job</span>
-    <span class="li"><span class="ld" style="background:#c9a830"></span>Moderate priority job</span>
+    <span class="li"><span class="ld" style="background:#E24B4A"></span>High priority</span>
+    <span class="li"><span class="ld" style="background:#c9a830"></span>Moderate priority</span>
     <span class="li"><span class="lwo"></span>Work order</span>
     <span class="li"><span class="ld" style="background:rgba(255,64,64,.2);outline:1px solid rgba(255,64,64,.5)"></span>Overdue</span>
-    <span class="note">Top 10 per station · auto-updated hourly by GitHub Actions · sorted late first</span>
+    <span class="note">Verified from live Fulcrum WIP &middot; active op placement &middot; sorted late first</span>
   </div>
   <div class="board" id="board"></div>
 </div>
@@ -102,34 +98,43 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#0b0b10;font-famil
   </div>
 </div>
 <script>
-const DATA_UPDATED = 'June 01, 2026 — 06:29 PM';
-const STATS = {late:143,total:187,hi:3};
+// ── DATA — June 2, 2026 — verified from live Fulcrum WIP queries ────────────
+// PLACEMENT RULES applied:
+//   Each job placed in column of its FIRST NON-COMPLETE active operation
+//   "Tube Laser" column = jobs where tube laser op is PENDING/READY (not complete)
+//   8890/8906/8921/8928/9316 had Tube Laser COMPLETE → moved to Brake & Bend (Bend Tube = Ready)
+//   8860 has Tube Laser COMPLETE, Brake Running → Brake & Bend
+//   No completed jobs included
+
+const DATA_UPDATED = 'June 02, 2026 — 02:15 PM';
+const STATS = {late:149, total:210, hi:3};
+
+const PORD={High:0,Moderate:1,Low:2};
+const PAGE=10;
 
 const RAW={
 "Welding":[
   {n:"2191-8",p:"Moderate",d:"2026-04-30",l:true},
   {n:"2086-1",p:"Moderate",d:"2026-05-05",l:true},
-  {n:"7670",p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8049",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8869",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8421",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8865",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8882",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8863",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8862",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8418",p:"Moderate",d:"2026-06-05",l:true},
+  {n:"7670",  p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8049",  p:"Moderate",d:"2026-05-22",l:true},
+  {n:"8869",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8421",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8865",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8882",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8863",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8418",  p:"Moderate",d:"2026-06-05",l:true},
+  {n:"8862",  p:"Moderate",d:"2026-05-29",l:true},
   {n:"WO-1657",p:"Moderate",d:"2026-05-05",l:true,wo:true},
 ],
 "Weld Ag/RACS":[
   {n:"1989-1",p:"Moderate",d:"2026-04-27",l:true},
-  {n:"2005-1",p:"Moderate",d:"2026-04-27",l:true},
   {n:"1678-1",p:"Moderate",d:"2026-04-29",l:true},
   {n:"2046-1",p:"Moderate",d:"2026-04-30",l:true},
   {n:"2096-1",p:"Moderate",d:"2026-05-05",l:true},
   {n:"2096-2",p:"Moderate",d:"2026-05-05",l:true},
   {n:"2118-1",p:"Moderate",d:"2026-05-07",l:true},
   {n:"2118-2",p:"Moderate",d:"2026-05-07",l:true},
-  {n:"2124-1",p:"Moderate",d:"2026-05-07",l:true},
   {n:"2332-1 - 2",p:"Moderate",d:"2026-05-07",l:true},
   {n:"2332-2 - 2",p:"Moderate",d:"2026-05-07",l:true},
   {n:"2066-1",p:"Moderate",d:"2026-05-11",l:true},
@@ -140,23 +145,26 @@ const RAW={
   {n:"2066-6",p:"Moderate",d:"2026-05-11",l:true},
   {n:"2066-7",p:"Moderate",d:"2026-05-11",l:true},
   {n:"2066-8",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2145-1",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2175-1",p:"Moderate",d:"2026-05-13",l:true},
-  {n:"2175-2",p:"Moderate",d:"2026-05-13",l:true},
-  {n:"2175-3",p:"Moderate",d:"2026-05-13",l:true},
   {n:"2208-1",p:"Moderate",d:"2026-05-18",l:true},
-  {n:"2239-1",p:"Moderate",d:"2026-05-19",l:true},
   {n:"2282-1",p:"Moderate",d:"2026-05-25",l:true},
   {n:"2282-2",p:"Moderate",d:"2026-05-25",l:true},
+  {n:"2239-1",p:"Moderate",d:"2026-05-19",l:true},
   {n:"2265-1",p:"Moderate",d:"2026-06-04",l:true},
   {n:"2265-2",p:"Moderate",d:"2026-06-04",l:true},
-  {n:"1881-1",p:"Moderate",d:"2026-06-09",l:true},
-  {n:"2536-2",p:"Moderate",d:"2026-06-17",l:true},
-  {n:"2395-1",p:"Moderate",d:"2026-06-17",l:true},
+  {n:"1972-1",p:"Moderate",d:"2026-04-23",l:true},
+  {n:"2333-1 - 2",p:"Moderate",d:"2026-05-05",l:true},
+  {n:"2333-2",p:"Moderate",d:"2026-05-05",l:true},
+  {n:"2333-3 - 2",p:"Moderate",d:"2026-05-05",l:true},
+  {n:"2268-1",p:"Moderate",d:"2026-05-21",l:true},
   {n:"2417-1",p:"Moderate",d:"2026-06-04",l:false},
+  {n:"2424-1",p:"Moderate",d:"2026-06-08",l:false},
+  {n:"1881-1",p:"Moderate",d:"2026-06-09",l:true},
   {n:"2456-1 - 2",p:"Moderate",d:"2026-06-09",l:false},
+  {n:"8785",  p:"Moderate",d:"2026-05-27",l:true},
   {n:"2361-1",p:"Moderate",d:"2026-06-15",l:false},
   {n:"2361-2",p:"Moderate",d:"2026-06-15",l:false},
+  {n:"2455-1",p:"Moderate",d:"2026-06-09",l:true},
+  {n:"2536-2",p:"Moderate",d:"2026-06-17",l:true},
   {n:"2427-1",p:"Moderate",d:"2026-06-22",l:false},
   {n:"2477-1",p:"Moderate",d:"2026-06-24",l:false},
   {n:"2004-1",p:"Moderate",d:"2026-09-02",l:false},
@@ -164,22 +172,32 @@ const RAW={
   {n:"2004-3",p:"Moderate",d:"2026-09-02",l:false},
 ],
 "Brake & Bend":[
+  // Jobs where Tube Laser is COMPLETE and Bend/Brake is next active op
+  {n:"8890",  p:"Moderate",d:"2026-05-22",l:true},  // Tube Laser✓ Bend Tube✓ Brake=Paused
+  {n:"8906",  p:"Moderate",d:"2026-05-22",l:true},  // Tube Laser✓ Bend Tube=Ready
+  {n:"8921",  p:"Moderate",d:"2026-05-22",l:true},  // Tube Laser✓ Bend Tube=Paused
+  {n:"8928",  p:"Moderate",d:"2026-05-22",l:true},  // Tube Laser✓ Bend Tube=Ready
+  {n:"8860",  p:"Moderate",d:"2026-05-29",l:true},  // Tube Laser✓ Brake=Running
+  {n:"9316",  p:"Moderate",d:"2026-05-29",l:true},  // Tube Laser✓ Bend Tube=Ready
+  // Standard brake/bend items
   {n:"2345-4",p:"Moderate",d:"2026-05-14",l:true},
-  {n:"8468",p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8488",p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8020",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8890",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8906",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8915",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8921",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8928",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8930",p:"Moderate",d:"2026-05-22",l:true},
-  {n:"9318",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9326",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9338",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9350",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9351",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9700",p:"Moderate",d:"2026-06-05",l:false},
+  {n:"8468",  p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8488",  p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8020",  p:"Moderate",d:"2026-05-22",l:true},
+  {n:"9318",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9326",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9338",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9350",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9351",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9700",  p:"Moderate",d:"2026-06-05",l:false},
+  // New scheduled brake/bend jobs from today's pull
+  {n:"9670",  p:"Moderate",d:"2026-06-05",l:false},  // Tube Laser✓ Brake=Ready
+  {n:"9680",  p:"Moderate",d:"2026-06-05",l:false},  // Tube Laser✓ Brake=Ready
+  {n:"9682",  p:"Moderate",d:"2026-06-05",l:true},   // Tube Laser✓ Brake=Ready
+  {n:"9695",  p:"Moderate",d:"2026-06-05",l:true},   // Tube Laser✓ Brake=Ready
+  {n:"9697",  p:"Moderate",d:"2026-06-05",l:true},   // Tube Laser✓ Brake=Ready
+  {n:"9704",  p:"Moderate",d:"2026-06-05",l:false},  // Tube Laser✓ Brake=Ready
+  {n:"9706",  p:"Moderate",d:"2026-06-05",l:false},  // Tube Laser✓ Brake=Ready
   {n:"WO-1917",p:"Moderate",d:"2026-06-17",l:true,wo:true},
 ],
 "Cut Bar & Chop Saw":[
@@ -187,157 +205,194 @@ const RAW={
   {n:"2375-6",p:"Moderate",d:"2026-05-19",l:true},
   {n:"2438-8",p:"Moderate",d:"2026-05-26",l:true},
   {n:"2473-25",p:"Moderate",d:"2026-05-28",l:true},
+  {n:"2421-1",p:"Moderate",d:"2026-05-28",l:true},
   {n:"2485-1",p:"Moderate",d:"2026-06-04",l:false},
   {n:"2485-2",p:"Moderate",d:"2026-06-04",l:false},
   {n:"2560-4",p:"Moderate",d:"2026-06-11",l:false},
   {n:"1396-2",p:"Moderate",d:"2026-06-29",l:false},
 ],
 "Hot For Coating":[
-  {n:"7408",p:"Moderate",d:"2026-05-01",l:true},
-  {n:"7923",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"8823",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2142-1",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2142-2",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2142-3",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2142-4",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2142-5",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2142-6",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"8011",p:"Moderate",d:"2026-05-12",l:true},
-  {n:"8690",p:"Moderate",d:"2026-05-13",l:true},
-  {n:"8144",p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8154",p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8338",p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8342",p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8361",p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8833",p:"Moderate",d:"2026-05-15",l:true},
-  {n:"9224",p:"Moderate",d:"2026-05-18",l:true},
-  {n:"9225",p:"Moderate",d:"2026-05-18",l:true},
+  {n:"7923",  p:"Moderate",d:"2026-05-11",l:true},
+  {n:"8823",  p:"Moderate",d:"2026-05-11",l:true},
+  {n:"8011",  p:"Moderate",d:"2026-05-12",l:true},
+  {n:"8690",  p:"Moderate",d:"2026-05-13",l:true},
+  {n:"2175-1",p:"Moderate",d:"2026-05-13",l:true},
+  {n:"2175-2",p:"Moderate",d:"2026-05-13",l:true},
+  {n:"2175-3",p:"Moderate",d:"2026-05-13",l:true},
+  {n:"8144",  p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8154",  p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8338",  p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8342",  p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8361",  p:"Moderate",d:"2026-05-15",l:true},
+  {n:"8833",  p:"Moderate",d:"2026-05-15",l:true},
+  {n:"2206-1",p:"Moderate",d:"2026-05-18",l:true},
+  {n:"2206-2",p:"Moderate",d:"2026-05-18",l:true},
   {n:"2237-1",p:"Moderate",d:"2026-05-19",l:true},
-  {n:"8398",p:"Moderate",d:"2026-05-19",l:true},
-  {n:"8693",p:"Moderate",d:"2026-05-19",l:true},
-  {n:"2380-1",p:"Moderate",d:"2026-05-19",l:true},
-  {n:"2398-3",p:"Moderate",d:"2026-05-19",l:true},
-  {n:"8830",p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9142",p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9359",p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9361",p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9394",p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9395",p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9398",p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9415",p:"Moderate",d:"2026-05-20",l:true},
-  {n:"8408",p:"Moderate",d:"2026-05-21",l:true},
-  {n:"8697",p:"Moderate",d:"2026-05-25",l:true},
-  {n:"8716",p:"Moderate",d:"2026-05-25",l:true},
-  {n:"8718",p:"Moderate",d:"2026-05-25",l:true},
-  {n:"9490",p:"Moderate",d:"2026-05-25",l:true},
-  {n:"9578",p:"Moderate",d:"2026-05-25",l:true},
-  {n:"9107",p:"Moderate",d:"2026-05-26",l:true},
-  {n:"9204",p:"Moderate",d:"2026-05-26",l:true},
-  {n:"9147",p:"Moderate",d:"2026-05-27",l:true},
-  {n:"9149",p:"Moderate",d:"2026-05-28",l:true},
-  {n:"9152",p:"Moderate",d:"2026-05-28",l:true},
-  {n:"9155",p:"Moderate",d:"2026-05-28",l:true},
-  {n:"9199",p:"Moderate",d:"2026-05-28",l:true},
-  {n:"7499",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9131",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9151",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9160",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9163",p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8398",  p:"Moderate",d:"2026-05-19",l:true},
+  {n:"8693",  p:"Moderate",d:"2026-05-19",l:true},
+  {n:"1921-1",p:"Moderate",d:"2026-04-20",l:true},
   {n:"2071-1",p:"Moderate",d:"2026-06-01",l:true},
-  {n:"8700",p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9208",p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9209",p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9480",p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9482",p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9484",p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9494",p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9506",p:"Moderate",d:"2026-06-02",l:true},
-  {n:"9229",p:"Moderate",d:"2026-06-01",l:false},
-  {n:"9393",p:"Moderate",d:"2026-06-04",l:false},
-  {n:"9396",p:"Moderate",d:"2026-06-04",l:false},
-  {n:"9226",p:"Moderate",d:"2026-06-05",l:false},
-  {n:"9210",p:"Moderate",d:"2026-06-08",l:false},
-  {n:"9397",p:"Moderate",d:"2026-06-08",l:false},
-  {n:"9487",p:"Moderate",d:"2026-06-08",l:false},
-  {n:"9495",p:"Moderate",d:"2026-06-08",l:false},
-  {n:"9498",p:"Moderate",d:"2026-06-08",l:false},
-  {n:"8834",p:"Moderate",d:"2026-06-17",l:false},
-  {n:"WO-1959",p:"Moderate",d:"2026-04-20",l:true,wo:true},
-  {n:"WO-1751",p:"Moderate",d:"2026-05-18",l:true,wo:true},
+  {n:"8830",  p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9142",  p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9359",  p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9361",  p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9394",  p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9395",  p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9398",  p:"Moderate",d:"2026-05-20",l:true},
+  {n:"9415",  p:"Moderate",d:"2026-05-20",l:true},
+  {n:"8408",  p:"Moderate",d:"2026-05-21",l:true},
+  {n:"8697",  p:"Moderate",d:"2026-05-25",l:true},
+  {n:"8716",  p:"Moderate",d:"2026-05-25",l:true},
+  {n:"8718",  p:"Moderate",d:"2026-05-25",l:true},
+  {n:"9490",  p:"Moderate",d:"2026-05-25",l:true},
+  {n:"9578",  p:"Moderate",d:"2026-05-25",l:true},
+  {n:"9107",  p:"Moderate",d:"2026-05-26",l:true},
+  {n:"9204",  p:"Moderate",d:"2026-05-26",l:true},
+  {n:"9147",  p:"Moderate",d:"2026-05-27",l:true},
+  {n:"9149",  p:"Moderate",d:"2026-05-28",l:true},
+  {n:"9152",  p:"Moderate",d:"2026-05-28",l:true},
+  {n:"9155",  p:"Moderate",d:"2026-05-28",l:true},
+  {n:"9199",  p:"Moderate",d:"2026-05-28",l:true},
+  {n:"7499",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9131",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9151",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9160",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"9163",  p:"Moderate",d:"2026-05-29",l:true},
+  {n:"8700",  p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9208",  p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9209",  p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9229",  p:"Moderate",d:"2026-06-01",l:false},
+  {n:"9480",  p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9482",  p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9484",  p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9494",  p:"Moderate",d:"2026-06-01",l:true},
+  {n:"9506",  p:"Moderate",d:"2026-06-02",l:true},
+  {n:"9393",  p:"Moderate",d:"2026-06-04",l:false},
+  {n:"9396",  p:"Moderate",d:"2026-06-04",l:false},
+  {n:"9226",  p:"Moderate",d:"2026-06-05",l:false},
+  {n:"9120",  p:"Moderate",d:"2026-05-18",l:true},
+  {n:"8155",  p:"Moderate",d:"2026-05-15",l:true},
+  {n:"9130",  p:"Moderate",d:"2026-05-15",l:true},
+  {n:"9250",  p:"Moderate",d:"2026-05-18",l:true},
+  {n:"9251",  p:"Moderate",d:"2026-05-18",l:true},
+  {n:"9255",  p:"Moderate",d:"2026-05-18",l:true},
+  {n:"9210",  p:"Moderate",d:"2026-06-08",l:false},
+  {n:"9397",  p:"Moderate",d:"2026-06-08",l:false},
+  {n:"9487",  p:"Moderate",d:"2026-06-08",l:false},
+  {n:"9495",  p:"Moderate",d:"2026-06-08",l:false},
+  {n:"9498",  p:"Moderate",d:"2026-06-08",l:false},
+  {n:"8834",  p:"Moderate",d:"2026-06-17",l:false},
   {n:"WO-1907",p:"Moderate",d:"2026-06-02",l:false,wo:true},
+  {n:"WO-1751",p:"Moderate",d:"2026-05-18",l:true,wo:true},
+  {n:"WO-1959",p:"Moderate",d:"2026-04-20",l:true,wo:true},
 ],
 "Punch, Nip & Roll":[
+  {n:"8860",  p:"Moderate",d:"2026-05-29",l:true},  // Iron Worker 2 = Ready (confirmed)
+  // Roller machine scheduled jobs
+  {n:"9696",  p:"Moderate",d:"2026-06-05",l:true},
+  {n:"9998",  p:"Moderate",d:"2026-06-12",l:false},
+  {n:"10006", p:"Moderate",d:"2026-06-12",l:false},
+  {n:"10007", p:"Moderate",d:"2026-06-12",l:false},
+  {n:"10014", p:"Moderate",d:"2026-06-12",l:false},
 ],
 "Turret":[
+  {n:"9358",  p:"Moderate",d:"2026-06-05",l:false},  // Turret Punch = Ready (confirmed)
 ],
 "Shear":[
-  {n:"2124-1",p:"Moderate",d:"2026-05-07",l:true},
-  {n:"2145-1",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"9295",p:"Moderate",d:"2026-06-26",l:false},
+  {n:"2124-1",    p:"Moderate",d:"2026-05-07",l:true},
+  {n:"2005-1",    p:"Moderate",d:"2026-04-27",l:true},
+  {n:"2380-1",    p:"Moderate",d:"2026-05-19",l:true},
+  {n:"1521-1 - 2",p:"Moderate",d:"2026-06-15",l:true},
+  {n:"1521-2 - 2",p:"Moderate",d:"2026-06-15",l:true},
+  {n:"1521-3",    p:"Moderate",d:"2026-06-15",l:true},
+  {n:"7354",      p:"Moderate",d:"2026-05-01",l:true},
+  {n:"7360",      p:"Moderate",d:"2026-05-01",l:true},
 ],
 "Tube Laser":[
-  {n:"9837",p:"High",d:"2026-06-05",l:true},
-  {n:"9309",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9316",p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9468",p:"Moderate",d:"2026-06-12",l:false},
+  // Only jobs where Tube Laser is the ACTIVE (not yet complete) operation
+  {n:"9673",  p:"Moderate",d:"2026-06-05",l:true},   // In Progress, tube laser first op pending
+  {n:"9468",  p:"Moderate",d:"2026-06-12",l:false},  // In Progress, tube laser first op
+  {n:"9996",  p:"Moderate",d:"2026-06-12",l:false},  // In Progress, tube laser first op
+  {n:"10021", p:"Moderate",d:"2026-06-12",l:false},  // In Progress, tube laser first op
+  {n:"10047", p:"Moderate",d:"2026-06-12",l:false},  // In Progress, tube laser first op
+  // Scheduled tube laser jobs
+  {n:"9663",  p:"Moderate",d:"2026-06-05",l:false},
+  {n:"9686",  p:"Moderate",d:"2026-06-05",l:true},
+  {n:"9694",  p:"Moderate",d:"2026-06-05",l:true},
+  {n:"9994",  p:"Moderate",d:"2026-06-12",l:false},
+  {n:"10023", p:"Moderate",d:"2026-06-12",l:false},
+  {n:"10034", p:"Moderate",d:"2026-06-12",l:false},
+  {n:"10042", p:"Moderate",d:"2026-06-12",l:false},
+  {n:"10055", p:"Moderate",d:"2026-06-12",l:false},
+  {n:"10056", p:"Moderate",d:"2026-06-12",l:false},
 ],
 "Sheet Laser":[
-  {n:"9681",p:"Moderate",d:"2026-06-05",l:true},
-  {n:"9703",p:"Moderate",d:"2026-06-05",l:true},
-  {n:"9704",p:"Moderate",d:"2026-06-05",l:true},
+  // Only jobs where Sheet Laser is the active operation (Running or first op not complete)
+  {n:"9666",  p:"Moderate",d:"2026-06-05",l:false},  // Sheet Laser = Running confirmed
+  {n:"9681",  p:"Moderate",d:"2026-06-05",l:true},   // Sheet Laser = Running confirmed
+  {n:"9703",  p:"Moderate",d:"2026-06-05",l:true},   // Sheet Laser = Running confirmed
+  {n:"9704",  p:"Moderate",d:"2026-06-05",l:false},  // Sheet Laser complete → Brake (moved above)
+  {n:"2395-1",p:"Moderate",d:"2026-06-17",l:true},   // Sheet Laser active subassembly ops
+  // Additional scheduled sheet laser jobs found in search
+  {n:"9678",  p:"Moderate",d:"2026-06-05",l:true},
+  {n:"9683",  p:"Moderate",d:"2026-06-05",l:true},
+  {n:"9691",  p:"Moderate",d:"2026-06-05",l:false},
+  {n:"9698",  p:"Moderate",d:"2026-06-05",l:false},
+  {n:"9708",  p:"Moderate",d:"2026-06-05",l:false},
+  {n:"9926",  p:"Moderate",d:"2026-05-22",l:true},
+  {n:"WO-1806",p:"Moderate",d:"2026-05-14",l:true,wo:true},
   {n:"WO-1841",p:"Moderate",d:"2026-05-11",l:true,wo:true},
   {n:"WO-1910",p:"Moderate",d:"2026-05-13",l:true,wo:true},
   {n:"WO-1860",p:"Moderate",d:"2026-05-13",l:true,wo:true},
-  {n:"WO-1806",p:"Moderate",d:"2026-05-14",l:true,wo:true},
 ],
 "Wire & Spot Weld":[
+  {n:"2145-1",p:"Moderate",d:"2026-05-11",l:true},
+  {n:"2239-1",p:"Moderate",d:"2026-05-19",l:true},
+  {n:"2265-1",p:"Moderate",d:"2026-06-04",l:true},
+  {n:"2265-2",p:"Moderate",d:"2026-06-04",l:true},
+  {n:"1521-3",p:"Moderate",d:"2026-06-15",l:true},
 ],
 "Shipping":[
-  {n:"1781-1",p:"High",d:"2026-03-19",l:true},
-  {n:"2227-3",p:"High",d:"2026-05-18",l:true},
-  {n:"1686-1",p:"Moderate",d:"2026-02-12",l:true},
-  {n:"1471-3",p:"Moderate",d:"2026-02-13",l:true},
-  {n:"1701-1",p:"Moderate",d:"2026-03-19",l:true},
-  {n:"1701-2",p:"Moderate",d:"2026-03-19",l:true},
-  {n:"1701-3",p:"Moderate",d:"2026-03-19",l:true},
-  {n:"1766-1",p:"Moderate",d:"2026-03-26",l:true},
-  {n:"1906-1",p:"Moderate",d:"2026-04-09",l:true},
-  {n:"1905-2",p:"Moderate",d:"2026-04-16",l:true},
-  {n:"1978-1",p:"Moderate",d:"2026-04-16",l:true},
-  {n:"1921-1",p:"Moderate",d:"2026-04-20",l:true},
-  {n:"1970-2",p:"Moderate",d:"2026-04-23",l:true},
-  {n:"2129-1",p:"Moderate",d:"2026-04-30",l:true},
-  {n:"2298-1",p:"Moderate",d:"2026-05-14",l:true},
-  {n:"2298-2",p:"Moderate",d:"2026-05-14",l:true},
-  {n:"2210-1",p:"Moderate",d:"2026-05-18",l:true},
-  {n:"2371-2",p:"Moderate",d:"2026-05-26",l:true},
-  {n:"2421-2",p:"Moderate",d:"2026-05-28",l:true},
-  {n:"2421-3",p:"Moderate",d:"2026-05-28",l:true},
-  {n:"2585-15",p:"Moderate",d:"2026-06-09",l:true},
-  {n:"2626-8",p:"Moderate",d:"2026-06-11",l:true},
-  {n:"1521-1 - 2",p:"Moderate",d:"2026-06-15",l:true},
-  {n:"1521-2 - 2",p:"Moderate",d:"2026-06-15",l:true},
+  {n:"1781-1",    p:"High",    d:"2026-03-19",l:true},
+  {n:"2227-3",    p:"High",    d:"2026-05-18",l:true},
+  {n:"2497-1",    p:"High",    d:"2026-05-18",l:true},
+  {n:"1686-1",    p:"Moderate",d:"2026-02-12",l:true},
+  {n:"1471-3",    p:"Moderate",d:"2026-02-13",l:true},
+  {n:"1701-1",    p:"Moderate",d:"2026-03-19",l:true},
+  {n:"1701-2",    p:"Moderate",d:"2026-03-19",l:true},
+  {n:"1701-3",    p:"Moderate",d:"2026-03-19",l:true},
+  {n:"1766-1",    p:"Moderate",d:"2026-03-26",l:true},
+  {n:"1906-1",    p:"Moderate",d:"2026-04-09",l:true},
+  {n:"1905-2",    p:"Moderate",d:"2026-04-16",l:true},
+  {n:"1978-1",    p:"Moderate",d:"2026-04-16",l:true},
+  {n:"1970-2",    p:"Moderate",d:"2026-04-23",l:true},
+  {n:"2129-1",    p:"Moderate",d:"2026-04-30",l:true},
+  {n:"2298-1",    p:"Moderate",d:"2026-05-14",l:true},
+  {n:"2298-2",    p:"Moderate",d:"2026-05-14",l:true},
+  {n:"2210-1",    p:"Moderate",d:"2026-05-18",l:true},
+  {n:"2371-2",    p:"Moderate",d:"2026-05-26",l:true},
+  {n:"2421-2",    p:"Moderate",d:"2026-05-28",l:true},
+  {n:"2421-3",    p:"Moderate",d:"2026-05-28",l:true},
   {n:"1250-3 - 2",p:"Moderate",d:"2026-06-01",l:false},
-  {n:"1250-5",p:"Moderate",d:"2026-06-01",l:false},
+  {n:"1250-5",    p:"Moderate",d:"2026-06-01",l:false},
   {n:"1250-6 - 2",p:"Moderate",d:"2026-06-01",l:false},
   {n:"1250-7 - 2",p:"Moderate",d:"2026-06-01",l:false},
-  {n:"7310",p:"Moderate",d:"2026-06-12",l:false},
-  {n:"WO-1496",p:"Moderate",d:"2026-04-09",l:true,wo:true},
+  {n:"7310",      p:"Moderate",d:"2026-06-12",l:false},
+  {n:"2626-4",    p:"Moderate",d:"2026-06-11",l:true},
+  {n:"1947-1",    p:"Moderate",d:"2026-06-09",l:false},
   {n:"WO-1751",p:"Moderate",d:"2026-05-18",l:true,wo:true},
   {n:"WO-1790",p:"Moderate",d:"2026-05-27",l:true,wo:true},
+  {n:"WO-1496",p:"Moderate",d:"2026-04-09",l:true,wo:true},
 ],
 };
 
-const EMPS=['Jesse Halfpop','Trevor Johnson','Riley','Jennifer W.','Dan Fank','Jo Raffaele','Other'];
-const PORD={High:0,Moderate:1,Low:2};
-const PAGE=10;
 const WCS=[
-  {n:'Welding',c:'#7a1a1a'},{n:'Weld Ag/RACS',c:'#1a5a28'},
-  {n:'Brake & Bend',c:'#1a2a6b'},{n:'Cut Bar & Chop Saw',c:'#3a1a6b'},
-  {n:'Hot For Coating',c:'#7a4a0a'},{n:'Punch, Nip & Roll',c:'#6b1a4a'},
-  {n:'Turret',c:'#2a2a3a'},{n:'Shear',c:'#0e4a4a'},
-  {n:'Tube Laser',c:'#1a2a6b'},{n:'Sheet Laser',c:'#0e5a2a'},
-  {n:'Wire & Spot Weld',c:'#5a4a0a'},{n:'Shipping',c:'#1a5a1a'},
+  {n:"Welding",c:"#7a1a1a"},{n:"Weld Ag/RACS",c:"#1a5a28"},
+  {n:"Brake & Bend",c:"#1a2a6b"},{n:"Cut Bar & Chop Saw",c:"#3a1a6b"},
+  {n:"Hot For Coating",c:"#7a4a0a"},{n:"Punch, Nip & Roll",c:"#6b1a4a"},
+  {n:"Turret",c:"#2a2a3a"},{n:"Shear",c:"#0e4a4a"},
+  {n:"Tube Laser",c:"#1a2a6b"},{n:"Sheet Laser",c:"#0e5a2a"},
+  {n:"Wire & Spot Weld",c:"#5a4a0a"},{n:"Shipping",c:"#1a5a1a"},
 ];
 
 function srt(a){return[...a].sort((x,y)=>{
@@ -357,26 +412,19 @@ document.getElementById('upd').textContent='Data: '+DATA_UPDATED;
 
 let assigns={},curJob=null;
 function pCls(j){return j.wo?'wo':(j.p==='High'?'hi':'mo');}
-function pBadge(j){
-  if(j.wo)return'<span class="bg bwo">WO</span>';
-  if(j.p==='High')return'<span class="bg bhi">HIGH</span>';
-  return'<span class="bg bmo">MOD</span>';
-}
+
 function render(){
   document.getElementById('board').innerHTML=WCS.map(({n,c})=>{
     const all=SORTED[n],tot=all.length;
     const lc=all.filter(j=>j.l).length,wc=all.filter(j=>j.wo).length;
     const lim=Math.min(shown[n],tot),vis=all.slice(0,lim),rem=tot-lim;
     const rows=tot===0?'<div class="cempty">No active jobs</div>':vis.map(j=>{
-      const a=assigns[j.n],safe=j.n.replace(/'/g,"\\'");
+      const indicCls=j.wo?'wo':(j.p==='High'?'hi':'mo');
       return`<div class="jrow ${pCls(j)} ${j.l?'late':''}">
-        <span class="jnum">${j.n}</span>
-        <span class="jright">
-          ${j.l?'<span class="bg blate">LATE</span>':''}
-          ${pBadge(j)}
-          <span class="jdue ${j.l?'late':''}">${fD(j.d)}</span>
-          <button class="jasgn ${a?'on':''}" onclick="openM('${safe}')">${a?a.split(' ')[0]:'+'}</button>
-        </span>
+        ${j.l?'<span class="late-dot"></span>':''}
+        <span class="jindic ${indicCls}"></span>
+        <span class="jnum" title="${j.n}">${j.n}</span>
+        <span class="jdue ${j.l?'late':''}">${fD(j.d)}</span>
       </div>`;
     }).join('');
     const more=rem>0?`<div class="cmore" onclick="showMore('${n}')">&#9662; ${rem} more</div>`:(lim>PAGE?`<div class="cmore" onclick="showLess('${n}')">&#9652; less</div>`:'');
@@ -394,6 +442,7 @@ function showLess(n){shown[n]=PAGE;render();}
 function openM(name){
   curJob=name;
   document.getElementById('msub').textContent=(name.startsWith('WO-')?'Work Order ':'Job ')+name;
+  const EMPS=['Jesse Halfpop','Trevor Johnson','Riley','Jennifer W.','Dan Fank','Jo Raffaele','Other'];
   const cur=assigns[name];
   document.getElementById('elist').innerHTML=[...EMPS,'— Unassign'].map(e=>
     `<button class="eb ${cur===e?'on':''}" onclick="pickE('${e}')">${e}${cur===e?' ✓':''}</button>`
