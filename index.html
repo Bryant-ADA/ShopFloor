@@ -31,7 +31,7 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#0b0b10;font-famil
 .col{background:#111118;border:1px solid #1a1a28;border-radius:4px;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 .accent{height:3px;flex-shrink:0}
 .chdr{display:flex;align-items:center;justify-content:space-between;padding:4px 9px;border-bottom:1px solid #161622;flex-shrink:0}
-.cname{font-size:clamp(7px,0.78vw,11px);font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#bbb;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:68%}
+.cname{font-size:clamp(7px,0.78vw,11px);font-weight:bold;letter-spacing:.7px;text-transform:uppercase;color:#bbb;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:64%}
 .cmeta{display:flex;align-items:center;gap:4px;flex-shrink:0}
 .ctot{font-size:clamp(7px,0.72vw,10px);color:#444;background:#0b0b10;padding:1px 5px;border-radius:2px;font-weight:bold}
 .clc{font-size:clamp(7px,0.72vw,10px);color:#ff4040;font-weight:bold}
@@ -48,9 +48,7 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#0b0b10;font-famil
 .jdue{font-size:clamp(9px,0.85vw,12px);font-weight:bold;color:#555;white-space:nowrap;flex-shrink:0}
 .jdue.late{color:#ff5050}
 .jindic{width:5px;height:5px;border-radius:50%;flex-shrink:0}
-.jindic.hi{background:#E24B4A}
-.jindic.mo{background:#c9a830}
-.jindic.wo{background:#5dca9e}
+.jindic.hi{background:#E24B4A}.jindic.mo{background:#c9a830}.jindic.wo{background:#5dca9e}
 .late-dot{width:5px;height:5px;border-radius:50%;background:#ff4040;flex-shrink:0}
 .cmore{text-align:center;font-size:clamp(7px,0.68vw,10px);color:#252535;padding:2px 0;cursor:pointer;border-top:1px solid #141420;flex-shrink:0}
 .cmore:hover{color:#e8c840}
@@ -85,7 +83,7 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#0b0b10;font-famil
     <span class="li"><span class="ld" style="background:#c9a830"></span>Moderate priority</span>
     <span class="li"><span class="lwo"></span>Work order</span>
     <span class="li"><span class="ld" style="background:rgba(255,64,64,.2);outline:1px solid rgba(255,64,64,.5)"></span>Overdue</span>
-    <span class="note">Verified from live Fulcrum WIP &middot; active op placement &middot; sorted late first</span>
+    <span class="note">Jobs + work orders in every column with active ops &middot; June 3, 2026</span>
   </div>
   <div class="board" id="board"></div>
 </div>
@@ -98,347 +96,398 @@ html,body{width:100vw;height:100vh;overflow:hidden;background:#0b0b10;font-famil
   </div>
 </div>
 <script>
-// ── DATA — June 2, 2026 — verified from live Fulcrum WIP queries ────────────
-// PLACEMENT RULES applied:
-//   Each job placed in column of its FIRST NON-COMPLETE active operation
-//   "Tube Laser" column = jobs where tube laser op is PENDING/READY (not complete)
-//   8890/8906/8921/8928/9316 had Tube Laser COMPLETE → moved to Brake & Bend (Bend Tube = Ready)
-//   8860 has Tube Laser COMPLETE, Brake Running → Brake & Bend
-//   No completed jobs included
+// ══════════════════════════════════════════════════════════════════════════════
+// ADA ENTERPRISES SHOP FLOOR — June 3, 2026
+// MULTI-COLUMN: a job/WO appears in EVERY column where it has a non-complete op.
+// WORK ORDERS interleaved with jobs in every column, sorted: late → priority → due.
+// Verified via get-job-operations, get-work-order-details, get-wip-status.
+// Completed jobs removed (9666, 9681, 9703 finished since last build).
+// ══════════════════════════════════════════════════════════════════════════════
 
-const DATA_UPDATED = 'June 02, 2026 — 02:15 PM';
-const STATS = {late:149, total:210, hi:3};
+const DATA_UPDATED = 'June 03, 2026 — 12:30 PM';
+const PORD = {High:0,Moderate:1,Low:2};
+const PAGE = 10;
+const j = (n,p,d,l,wo=false) => ({n,p,d,l,wo});
 
-const PORD={High:0,Moderate:1,Low:2};
-const PAGE=10;
+const RAW = {
 
-const RAW={
-"Welding":[
-  {n:"2191-8",p:"Moderate",d:"2026-04-30",l:true},
-  {n:"2086-1",p:"Moderate",d:"2026-05-05",l:true},
-  {n:"7670",  p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8049",  p:"Moderate",d:"2026-05-22",l:true},
-  {n:"8869",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8421",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8865",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8882",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8863",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8418",  p:"Moderate",d:"2026-06-05",l:true},
-  {n:"8862",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"WO-1657",p:"Moderate",d:"2026-05-05",l:true,wo:true},
+"Welding": [
+  j("7670",  "Moderate","2026-05-15",true),
+  j("8865",  "Moderate","2026-05-29",true),
+  j("8421",  "Moderate","2026-05-29",true),
+  j("8869",  "Moderate","2026-05-29",true),
+  j("8418",  "Moderate","2026-06-05",true),
+  j("2191-8","Moderate","2026-04-30",true),
+  j("8882",  "Moderate","2026-05-29",true),
+  j("8863",  "Moderate","2026-05-29",true),
+  j("8862",  "Moderate","2026-05-29",true),
+  j("2086-1","Moderate","2026-05-05",true),
+  j("9641",  "Moderate","2026-06-12",false),  // Weld=Pending after SL subop
+  j("WO-1657","Moderate","2026-05-05",true,true),
 ],
-"Weld Ag/RACS":[
-  {n:"1989-1",p:"Moderate",d:"2026-04-27",l:true},
-  {n:"1678-1",p:"Moderate",d:"2026-04-29",l:true},
-  {n:"2046-1",p:"Moderate",d:"2026-04-30",l:true},
-  {n:"2096-1",p:"Moderate",d:"2026-05-05",l:true},
-  {n:"2096-2",p:"Moderate",d:"2026-05-05",l:true},
-  {n:"2118-1",p:"Moderate",d:"2026-05-07",l:true},
-  {n:"2118-2",p:"Moderate",d:"2026-05-07",l:true},
-  {n:"2332-1 - 2",p:"Moderate",d:"2026-05-07",l:true},
-  {n:"2332-2 - 2",p:"Moderate",d:"2026-05-07",l:true},
-  {n:"2066-1",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2066-2",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2066-3",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2066-4",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2066-5",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2066-6",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2066-7",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2066-8",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2208-1",p:"Moderate",d:"2026-05-18",l:true},
-  {n:"2282-1",p:"Moderate",d:"2026-05-25",l:true},
-  {n:"2282-2",p:"Moderate",d:"2026-05-25",l:true},
-  {n:"2239-1",p:"Moderate",d:"2026-05-19",l:true},
-  {n:"2265-1",p:"Moderate",d:"2026-06-04",l:true},
-  {n:"2265-2",p:"Moderate",d:"2026-06-04",l:true},
-  {n:"1972-1",p:"Moderate",d:"2026-04-23",l:true},
-  {n:"2333-1 - 2",p:"Moderate",d:"2026-05-05",l:true},
-  {n:"2333-2",p:"Moderate",d:"2026-05-05",l:true},
-  {n:"2333-3 - 2",p:"Moderate",d:"2026-05-05",l:true},
-  {n:"2268-1",p:"Moderate",d:"2026-05-21",l:true},
-  {n:"2417-1",p:"Moderate",d:"2026-06-04",l:false},
-  {n:"2424-1",p:"Moderate",d:"2026-06-08",l:false},
-  {n:"1881-1",p:"Moderate",d:"2026-06-09",l:true},
-  {n:"2456-1 - 2",p:"Moderate",d:"2026-06-09",l:false},
-  {n:"8785",  p:"Moderate",d:"2026-05-27",l:true},
-  {n:"2361-1",p:"Moderate",d:"2026-06-15",l:false},
-  {n:"2361-2",p:"Moderate",d:"2026-06-15",l:false},
-  {n:"2455-1",p:"Moderate",d:"2026-06-09",l:true},
-  {n:"2536-2",p:"Moderate",d:"2026-06-17",l:true},
-  {n:"2427-1",p:"Moderate",d:"2026-06-22",l:false},
-  {n:"2477-1",p:"Moderate",d:"2026-06-24",l:false},
-  {n:"2004-1",p:"Moderate",d:"2026-09-02",l:false},
-  {n:"2004-2",p:"Moderate",d:"2026-09-02",l:false},
-  {n:"2004-3",p:"Moderate",d:"2026-09-02",l:false},
+
+"Weld Ag/RACS": [
+  j("1678-1",    "Moderate","2026-04-29",true),
+  j("2046-1",    "Moderate","2026-04-30",true),
+  j("2096-1",    "Moderate","2026-05-05",true),
+  j("2096-2",    "Moderate","2026-05-05",true),
+  j("2118-1",    "Moderate","2026-05-07",true),
+  j("2118-2",    "Moderate","2026-05-07",true),
+  j("2332-1 - 2","Moderate","2026-05-07",true),
+  j("2332-2 - 2","Moderate","2026-05-07",true),
+  j("2066-1",    "Moderate","2026-05-11",true),
+  j("2066-2",    "Moderate","2026-05-11",true),
+  j("2066-3",    "Moderate","2026-05-11",true),
+  j("2066-4",    "Moderate","2026-05-11",true),
+  j("2066-5",    "Moderate","2026-05-11",true),
+  j("2066-6",    "Moderate","2026-05-11",true),
+  j("2066-7",    "Moderate","2026-05-11",true),
+  j("2066-8",    "Moderate","2026-05-11",true),
+  j("2208-1",    "Moderate","2026-05-18",true),
+  j("2239-1",    "Moderate","2026-05-19",true),
+  j("2282-1",    "Moderate","2026-05-25",true),
+  j("2282-2",    "Moderate","2026-05-25",true),
+  j("2265-1",    "Moderate","2026-06-04",true),
+  j("2265-2",    "Moderate","2026-06-04",true),
+  j("2333-1 - 2","Moderate","2026-05-05",true),
+  j("2333-2",    "Moderate","2026-05-05",true),
+  j("2333-3 - 2","Moderate","2026-05-05",true),
+  j("2268-1",    "Moderate","2026-05-21",true),
+  j("8785",      "Moderate","2026-05-27",true),
+  j("1881-1",    "Moderate","2026-06-09",true),
+  j("2456-1 - 2","Moderate","2026-06-09",false),
+  j("2455-1",    "Moderate","2026-06-09",true),
+  j("2536-2",    "Moderate","2026-06-17",true),
+  j("1972-1",    "Moderate","2026-04-23",true),  // Weld A&R pending (also SL + Shear)
+  j("2547-1",    "Moderate","2026-07-01",false), // Weld A&R pending (also SL)
+  j("2004-1",    "Moderate","2026-09-02",false),
+  j("2004-2",    "Moderate","2026-09-02",false),
+  j("2004-3",    "Moderate","2026-09-02",false),
 ],
-"Brake & Bend":[
-  // Jobs where Tube Laser is COMPLETE and Bend/Brake is next active op
-  {n:"8890",  p:"Moderate",d:"2026-05-22",l:true},  // Tube Laser✓ Bend Tube✓ Brake=Paused
-  {n:"8906",  p:"Moderate",d:"2026-05-22",l:true},  // Tube Laser✓ Bend Tube=Ready
-  {n:"8921",  p:"Moderate",d:"2026-05-22",l:true},  // Tube Laser✓ Bend Tube=Paused
-  {n:"8928",  p:"Moderate",d:"2026-05-22",l:true},  // Tube Laser✓ Bend Tube=Ready
-  {n:"8860",  p:"Moderate",d:"2026-05-29",l:true},  // Tube Laser✓ Brake=Running
-  {n:"9316",  p:"Moderate",d:"2026-05-29",l:true},  // Tube Laser✓ Bend Tube=Ready
-  // Standard brake/bend items
-  {n:"2345-4",p:"Moderate",d:"2026-05-14",l:true},
-  {n:"8468",  p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8488",  p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8020",  p:"Moderate",d:"2026-05-22",l:true},
-  {n:"9318",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9326",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9338",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9350",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9351",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9700",  p:"Moderate",d:"2026-06-05",l:false},
-  // New scheduled brake/bend jobs from today's pull
-  {n:"9670",  p:"Moderate",d:"2026-06-05",l:false},  // Tube Laser✓ Brake=Ready
-  {n:"9680",  p:"Moderate",d:"2026-06-05",l:false},  // Tube Laser✓ Brake=Ready
-  {n:"9682",  p:"Moderate",d:"2026-06-05",l:true},   // Tube Laser✓ Brake=Ready
-  {n:"9695",  p:"Moderate",d:"2026-06-05",l:true},   // Tube Laser✓ Brake=Ready
-  {n:"9697",  p:"Moderate",d:"2026-06-05",l:true},   // Tube Laser✓ Brake=Ready
-  {n:"9704",  p:"Moderate",d:"2026-06-05",l:false},  // Tube Laser✓ Brake=Ready
-  {n:"9706",  p:"Moderate",d:"2026-06-05",l:false},  // Tube Laser✓ Brake=Ready
-  {n:"WO-1917",p:"Moderate",d:"2026-06-17",l:true,wo:true},
+
+"Brake & Bend": [
+  j("2345-4","Moderate","2026-05-14",true),
+  j("8468",  "Moderate","2026-05-15",true),
+  j("8488",  "Moderate","2026-05-15",true),
+  j("8020",  "Moderate","2026-05-22",true),
+  j("8890",  "Moderate","2026-05-22",true),
+  j("8906",  "Moderate","2026-05-22",true),
+  j("8921",  "Moderate","2026-05-22",true),
+  j("8928",  "Moderate","2026-05-22",true),
+  j("8930",  "Moderate","2026-05-22",true),
+  j("8860",  "Moderate","2026-05-29",true),
+  j("9316",  "Moderate","2026-05-29",true),
+  j("9318",  "Moderate","2026-05-29",true),
+  j("9326",  "Moderate","2026-05-29",true),
+  j("9338",  "Moderate","2026-05-29",true),
+  j("9350",  "Moderate","2026-05-29",true),
+  j("9351",  "Moderate","2026-05-29",true),
+  j("9670",  "Moderate","2026-06-05",false),
+  j("9680",  "Moderate","2026-06-05",false),
+  j("9682",  "Moderate","2026-06-05",true),
+  j("9695",  "Moderate","2026-06-05",true),
+  j("9697",  "Moderate","2026-06-05",true),
+  j("9700",  "Moderate","2026-06-05",false),
+  j("9704",  "Moderate","2026-06-05",false),
+  j("9706",  "Moderate","2026-06-05",false),
+  j("WO-1917","Moderate","2026-06-17",true,true),
 ],
-"Cut Bar & Chop Saw":[
-  {n:"2298-3",p:"Moderate",d:"2026-05-14",l:true},
-  {n:"2375-6",p:"Moderate",d:"2026-05-19",l:true},
-  {n:"2438-8",p:"Moderate",d:"2026-05-26",l:true},
-  {n:"2473-25",p:"Moderate",d:"2026-05-28",l:true},
-  {n:"2421-1",p:"Moderate",d:"2026-05-28",l:true},
-  {n:"2485-1",p:"Moderate",d:"2026-06-04",l:false},
-  {n:"2485-2",p:"Moderate",d:"2026-06-04",l:false},
-  {n:"2560-4",p:"Moderate",d:"2026-06-11",l:false},
-  {n:"1396-2",p:"Moderate",d:"2026-06-29",l:false},
+
+"Cut Bar & Chop Saw": [
+  j("2298-3", "Moderate","2026-05-14",true),
+  j("2375-6", "Moderate","2026-05-19",true),
+  j("2438-8", "Moderate","2026-05-26",true),
+  j("2473-25","Moderate","2026-05-28",true),
+  j("2421-1", "Moderate","2026-05-28",true),
+  j("2485-1", "Moderate","2026-06-04",false),
+  j("2485-2", "Moderate","2026-06-04",false),
+  j("2560-4", "Moderate","2026-06-11",false),
 ],
-"Hot For Coating":[
-  {n:"7923",  p:"Moderate",d:"2026-05-11",l:true},
-  {n:"8823",  p:"Moderate",d:"2026-05-11",l:true},
-  {n:"8011",  p:"Moderate",d:"2026-05-12",l:true},
-  {n:"8690",  p:"Moderate",d:"2026-05-13",l:true},
-  {n:"2175-1",p:"Moderate",d:"2026-05-13",l:true},
-  {n:"2175-2",p:"Moderate",d:"2026-05-13",l:true},
-  {n:"2175-3",p:"Moderate",d:"2026-05-13",l:true},
-  {n:"8144",  p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8154",  p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8338",  p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8342",  p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8361",  p:"Moderate",d:"2026-05-15",l:true},
-  {n:"8833",  p:"Moderate",d:"2026-05-15",l:true},
-  {n:"2206-1",p:"Moderate",d:"2026-05-18",l:true},
-  {n:"2206-2",p:"Moderate",d:"2026-05-18",l:true},
-  {n:"2237-1",p:"Moderate",d:"2026-05-19",l:true},
-  {n:"8398",  p:"Moderate",d:"2026-05-19",l:true},
-  {n:"8693",  p:"Moderate",d:"2026-05-19",l:true},
-  {n:"1921-1",p:"Moderate",d:"2026-04-20",l:true},
-  {n:"2071-1",p:"Moderate",d:"2026-06-01",l:true},
-  {n:"8830",  p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9142",  p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9359",  p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9361",  p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9394",  p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9395",  p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9398",  p:"Moderate",d:"2026-05-20",l:true},
-  {n:"9415",  p:"Moderate",d:"2026-05-20",l:true},
-  {n:"8408",  p:"Moderate",d:"2026-05-21",l:true},
-  {n:"8697",  p:"Moderate",d:"2026-05-25",l:true},
-  {n:"8716",  p:"Moderate",d:"2026-05-25",l:true},
-  {n:"8718",  p:"Moderate",d:"2026-05-25",l:true},
-  {n:"9490",  p:"Moderate",d:"2026-05-25",l:true},
-  {n:"9578",  p:"Moderate",d:"2026-05-25",l:true},
-  {n:"9107",  p:"Moderate",d:"2026-05-26",l:true},
-  {n:"9204",  p:"Moderate",d:"2026-05-26",l:true},
-  {n:"9147",  p:"Moderate",d:"2026-05-27",l:true},
-  {n:"9149",  p:"Moderate",d:"2026-05-28",l:true},
-  {n:"9152",  p:"Moderate",d:"2026-05-28",l:true},
-  {n:"9155",  p:"Moderate",d:"2026-05-28",l:true},
-  {n:"9199",  p:"Moderate",d:"2026-05-28",l:true},
-  {n:"7499",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9131",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9151",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9160",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"9163",  p:"Moderate",d:"2026-05-29",l:true},
-  {n:"8700",  p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9208",  p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9209",  p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9229",  p:"Moderate",d:"2026-06-01",l:false},
-  {n:"9480",  p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9482",  p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9484",  p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9494",  p:"Moderate",d:"2026-06-01",l:true},
-  {n:"9506",  p:"Moderate",d:"2026-06-02",l:true},
-  {n:"9393",  p:"Moderate",d:"2026-06-04",l:false},
-  {n:"9396",  p:"Moderate",d:"2026-06-04",l:false},
-  {n:"9226",  p:"Moderate",d:"2026-06-05",l:false},
-  {n:"9120",  p:"Moderate",d:"2026-05-18",l:true},
-  {n:"8155",  p:"Moderate",d:"2026-05-15",l:true},
-  {n:"9130",  p:"Moderate",d:"2026-05-15",l:true},
-  {n:"9250",  p:"Moderate",d:"2026-05-18",l:true},
-  {n:"9251",  p:"Moderate",d:"2026-05-18",l:true},
-  {n:"9255",  p:"Moderate",d:"2026-05-18",l:true},
-  {n:"9210",  p:"Moderate",d:"2026-06-08",l:false},
-  {n:"9397",  p:"Moderate",d:"2026-06-08",l:false},
-  {n:"9487",  p:"Moderate",d:"2026-06-08",l:false},
-  {n:"9495",  p:"Moderate",d:"2026-06-08",l:false},
-  {n:"9498",  p:"Moderate",d:"2026-06-08",l:false},
-  {n:"8834",  p:"Moderate",d:"2026-06-17",l:false},
-  {n:"WO-1907",p:"Moderate",d:"2026-06-02",l:false,wo:true},
-  {n:"WO-1751",p:"Moderate",d:"2026-05-18",l:true,wo:true},
-  {n:"WO-1959",p:"Moderate",d:"2026-04-20",l:true,wo:true},
+
+"Hot For Coating": [
+  j("1989-1","Moderate","2026-04-27",true),
+  j("1921-1","Moderate","2026-04-20",true),
+  j("2175-1","Moderate","2026-05-13",true),
+  j("2175-2","Moderate","2026-05-13",true),
+  j("2175-3","Moderate","2026-05-13",true),
+  j("2071-1","Moderate","2026-06-01",true),
+  j("7923",  "Moderate","2026-05-11",true),
+  j("8823",  "Moderate","2026-05-11",true),
+  j("8011",  "Moderate","2026-05-12",true),
+  j("8690",  "Moderate","2026-05-13",true),
+  j("8144",  "Moderate","2026-05-15",true),
+  j("8154",  "Moderate","2026-05-15",true),
+  j("8338",  "Moderate","2026-05-15",true),
+  j("8342",  "Moderate","2026-05-15",true),
+  j("8361",  "Moderate","2026-05-15",true),
+  j("8833",  "Moderate","2026-05-15",true),
+  j("2206-1","Moderate","2026-05-18",true),
+  j("2206-2","Moderate","2026-05-18",true),
+  j("2210-1","Moderate","2026-05-18",true),
+  j("2237-1","Moderate","2026-05-19",true),
+  j("8398",  "Moderate","2026-05-19",true),
+  j("8693",  "Moderate","2026-05-19",true),
+  j("8830",  "Moderate","2026-05-20",true),
+  j("9142",  "Moderate","2026-05-20",true),
+  j("9359",  "Moderate","2026-05-20",true),
+  j("9361",  "Moderate","2026-05-20",true),
+  j("9394",  "Moderate","2026-05-20",true),
+  j("9395",  "Moderate","2026-05-20",true),
+  j("9398",  "Moderate","2026-05-20",true),
+  j("9415",  "Moderate","2026-05-20",true),
+  j("8408",  "Moderate","2026-05-21",true),
+  j("8697",  "Moderate","2026-05-25",true),
+  j("8716",  "Moderate","2026-05-25",true),
+  j("8718",  "Moderate","2026-05-25",true),
+  j("9490",  "Moderate","2026-05-25",true),
+  j("9578",  "Moderate","2026-05-25",true),
+  j("9107",  "Moderate","2026-05-26",true),
+  j("9204",  "Moderate","2026-05-26",true),
+  j("9147",  "Moderate","2026-05-27",true),
+  j("9149",  "Moderate","2026-05-28",true),
+  j("9152",  "Moderate","2026-05-28",true),
+  j("9155",  "Moderate","2026-05-28",true),
+  j("9199",  "Moderate","2026-05-28",true),
+  j("7499",  "Moderate","2026-05-29",true),
+  j("9131",  "Moderate","2026-05-29",true),
+  j("9151",  "Moderate","2026-05-29",true),
+  j("9160",  "Moderate","2026-05-29",true),
+  j("9163",  "Moderate","2026-05-29",true),
+  j("8700",  "Moderate","2026-06-01",true),
+  j("9208",  "Moderate","2026-06-01",true),
+  j("9209",  "Moderate","2026-06-01",true),
+  j("9229",  "Moderate","2026-06-01",false),
+  j("9480",  "Moderate","2026-06-01",true),
+  j("9482",  "Moderate","2026-06-01",true),
+  j("9484",  "Moderate","2026-06-01",true),
+  j("9494",  "Moderate","2026-06-01",true),
+  j("9506",  "Moderate","2026-06-02",true),
+  j("9393",  "Moderate","2026-06-04",false),
+  j("9396",  "Moderate","2026-06-04",false),
+  j("9226",  "Moderate","2026-06-05",false),
+  j("9120",  "Moderate","2026-05-18",true),
+  j("8155",  "Moderate","2026-05-15",true),
+  j("9130",  "Moderate","2026-05-15",true),
+  j("9250",  "Moderate","2026-05-18",true),
+  j("9251",  "Moderate","2026-05-18",true),
+  j("9255",  "Moderate","2026-05-18",true),
+  j("9210",  "Moderate","2026-06-08",false),
+  j("9397",  "Moderate","2026-06-08",false),
+  j("9487",  "Moderate","2026-06-08",false),
+  j("9495",  "Moderate","2026-06-08",false),
+  j("9498",  "Moderate","2026-06-08",false),
+  j("8834",  "Moderate","2026-06-17",false),
+  // Work orders with active coat ops (all verified):
+  j("WO-1751","Moderate","2026-05-18",true,true),  // Coat Furniture Blue=Ready (+Shipping)
+  j("WO-1806","Moderate","2026-05-14",true,true),  // Coat 408 Black=Ready
+  j("WO-1841","Moderate","2026-05-11",true,true),  // Coat 408 Blue=Ready
+  j("WO-1860","Moderate","2026-05-13",true,true),  // Coat 408 Brown=Ready
+  j("WO-1862","Moderate","2026-05-13",true,true),  // Coat 408 Black=Pending
+  j("WO-1907","Moderate","2026-06-02",false,true), // Coat 408 Brown=Ready
+  j("WO-1910","Moderate","2026-05-13",true,true),  // Coat 408 Brown=Ready
+  j("WO-1959","Moderate","2026-04-20",true,true),  // Coat Ag Orange=Pending
+  j("WO-1960","Moderate","2026-05-19",true,true),  // Coat 408 Charcoal=Paused
+  j("WO-1972","Moderate","2026-06-11",true,true),  // Coat 408 Black=Ready
+  j("WO-1973","Moderate","2026-05-15",true,true),  // Coat Furniture Brown=Ready
 ],
-"Punch, Nip & Roll":[
-  {n:"8860",  p:"Moderate",d:"2026-05-29",l:true},  // Iron Worker 2 = Ready (confirmed)
-  // Roller machine scheduled jobs
-  {n:"9696",  p:"Moderate",d:"2026-06-05",l:true},
-  {n:"9998",  p:"Moderate",d:"2026-06-12",l:false},
-  {n:"10006", p:"Moderate",d:"2026-06-12",l:false},
-  {n:"10007", p:"Moderate",d:"2026-06-12",l:false},
-  {n:"10014", p:"Moderate",d:"2026-06-12",l:false},
+
+"Punch, Nip & Roll": [
+  j("8860", "Moderate","2026-05-29",true),
+  j("9696", "Moderate","2026-06-05",true),
+  j("9998", "Moderate","2026-06-12",false),
+  j("10006","Moderate","2026-06-12",false),
+  j("10007","Moderate","2026-06-12",false),
+  j("10014","Moderate","2026-06-12",false),
 ],
-"Turret":[
-  {n:"9358",  p:"Moderate",d:"2026-06-05",l:false},  // Turret Punch = Ready (confirmed)
+
+"Turret": [
+  j("9358","Moderate","2026-06-05",false),
 ],
-"Shear":[
-  {n:"2124-1",    p:"Moderate",d:"2026-05-07",l:true},
-  {n:"2005-1",    p:"Moderate",d:"2026-04-27",l:true},
-  {n:"2380-1",    p:"Moderate",d:"2026-05-19",l:true},
-  {n:"1521-1 - 2",p:"Moderate",d:"2026-06-15",l:true},
-  {n:"1521-2 - 2",p:"Moderate",d:"2026-06-15",l:true},
-  {n:"1521-3",    p:"Moderate",d:"2026-06-15",l:true},
-  {n:"7354",      p:"Moderate",d:"2026-05-01",l:true},
-  {n:"7360",      p:"Moderate",d:"2026-05-01",l:true},
+
+"Shear": [
+  j("2124-1",    "Moderate","2026-05-07",true),
+  j("2005-1",    "Moderate","2026-04-27",true),
+  j("2380-1",    "Moderate","2026-05-19",true),
+  j("1521-1 - 2","Moderate","2026-06-15",true),
+  j("1521-2 - 2","Moderate","2026-06-15",true),
+  j("1521-3",    "Moderate","2026-06-15",true),
+  j("7354",      "Moderate","2026-05-01",true),
+  j("7360",      "Moderate","2026-05-01",true),
+  j("1396-2",    "Moderate","2026-06-29",false),
+  j("9295",      "Moderate","2026-06-26",false),
+  j("1972-1",    "Moderate","2026-04-23",true),  // Shear=Ready (also SL + Weld)
 ],
-"Tube Laser":[
-  // Only jobs where Tube Laser is the ACTIVE (not yet complete) operation
-  {n:"9673",  p:"Moderate",d:"2026-06-05",l:true},   // In Progress, tube laser first op pending
-  {n:"9468",  p:"Moderate",d:"2026-06-12",l:false},  // In Progress, tube laser first op
-  {n:"9996",  p:"Moderate",d:"2026-06-12",l:false},  // In Progress, tube laser first op
-  {n:"10021", p:"Moderate",d:"2026-06-12",l:false},  // In Progress, tube laser first op
-  {n:"10047", p:"Moderate",d:"2026-06-12",l:false},  // In Progress, tube laser first op
-  // Scheduled tube laser jobs
-  {n:"9663",  p:"Moderate",d:"2026-06-05",l:false},
-  {n:"9686",  p:"Moderate",d:"2026-06-05",l:true},
-  {n:"9694",  p:"Moderate",d:"2026-06-05",l:true},
-  {n:"9994",  p:"Moderate",d:"2026-06-12",l:false},
-  {n:"10023", p:"Moderate",d:"2026-06-12",l:false},
-  {n:"10034", p:"Moderate",d:"2026-06-12",l:false},
-  {n:"10042", p:"Moderate",d:"2026-06-12",l:false},
-  {n:"10055", p:"Moderate",d:"2026-06-12",l:false},
-  {n:"10056", p:"Moderate",d:"2026-06-12",l:false},
+
+"Tube Laser": [
+  j("9673", "Moderate","2026-06-05",true),
+  j("9468", "Moderate","2026-06-12",false),
+  j("9996", "Moderate","2026-06-12",false),
+  j("10021","Moderate","2026-06-12",false),
+  j("10047","Moderate","2026-06-12",false),
+  j("9663", "Moderate","2026-06-05",false),
+  j("9686", "Moderate","2026-06-05",true),
+  j("9694", "Moderate","2026-06-05",true),
+  j("9994", "Moderate","2026-06-12",false),
+  j("10023","Moderate","2026-06-12",false),
+  j("10034","Moderate","2026-06-12",false),
+  j("10042","Moderate","2026-06-12",false),
+  j("10055","Moderate","2026-06-12",false),
+  j("10056","Moderate","2026-06-12",false),
 ],
-"Sheet Laser":[
-  // Only jobs where Sheet Laser is the active operation (Running or first op not complete)
-  {n:"9666",  p:"Moderate",d:"2026-06-05",l:false},  // Sheet Laser = Running confirmed
-  {n:"9681",  p:"Moderate",d:"2026-06-05",l:true},   // Sheet Laser = Running confirmed
-  {n:"9703",  p:"Moderate",d:"2026-06-05",l:true},   // Sheet Laser = Running confirmed
-  {n:"9704",  p:"Moderate",d:"2026-06-05",l:false},  // Sheet Laser complete → Brake (moved above)
-  {n:"2395-1",p:"Moderate",d:"2026-06-17",l:true},   // Sheet Laser active subassembly ops
-  // Additional scheduled sheet laser jobs found in search
-  {n:"9678",  p:"Moderate",d:"2026-06-05",l:true},
-  {n:"9683",  p:"Moderate",d:"2026-06-05",l:true},
-  {n:"9691",  p:"Moderate",d:"2026-06-05",l:false},
-  {n:"9698",  p:"Moderate",d:"2026-06-05",l:false},
-  {n:"9708",  p:"Moderate",d:"2026-06-05",l:false},
-  {n:"9926",  p:"Moderate",d:"2026-05-22",l:true},
-  {n:"WO-1806",p:"Moderate",d:"2026-05-14",l:true,wo:true},
-  {n:"WO-1841",p:"Moderate",d:"2026-05-11",l:true,wo:true},
-  {n:"WO-1910",p:"Moderate",d:"2026-05-13",l:true,wo:true},
-  {n:"WO-1860",p:"Moderate",d:"2026-05-13",l:true,wo:true},
+
+"Sheet Laser": [
+  // Current Ready (verified via get-wip-status June 3):
+  j("2456-1 - 2","Moderate","2026-06-09",false),  // SL=Ready (+Weld Ag)
+  j("2427-1",    "Moderate","2026-06-22",false),  // SL=Ready
+  j("2424-1",    "Moderate","2026-06-08",false),  // SL=Ready
+  j("1947-1",    "Moderate","2026-06-09",false),  // SL=Ready
+  j("8926",      "Moderate","2026-05-22",true),   // SL=Ready
+  j("2361-1",    "Moderate","2026-06-15",false),  // SL=Ready
+  j("2361-2",    "Moderate","2026-06-15",false),  // SL=Ready
+  j("9641",      "Moderate","2026-06-12",false),  // SL subop=Ready (+Welding)
+  j("1972-1",    "Moderate","2026-04-23",true),   // SL=Ready (+Shear +Weld)
+  j("2547-1",    "Moderate","2026-07-01",false),  // SL subops=Ready (+Weld Ag)
+  j("2395-1",    "Moderate","2026-06-17",true),   // SL subops=Ready
+  j("2268-1",    "Moderate","2026-05-21",true),   // SL=Ready (+Weld Ag)
+  j("2455-1",    "Moderate","2026-06-09",true),   // SL=Ready (+Weld Ag)
+  // Scheduled sheet laser jobs:
+  j("9678",      "Moderate","2026-06-05",true),
+  j("9683",      "Moderate","2026-06-05",true),
+  j("9691",      "Moderate","2026-06-05",false),
+  j("9698",      "Moderate","2026-06-05",false),
+  j("9708",      "Moderate","2026-06-05",false),
+  // Work orders with active Laser Cut Sheet ops (verified via get-work-order-details):
+  j("WO-1968","Moderate","2026-06-12",false,true),  // Laser Cut Sheet=Ready
+  j("WO-1936","Moderate","2026-06-05",true,true),   // Laser Cut Sheet=Pending
+  j("WO-1966","Moderate","2026-06-12",true,true),   // Laser Cut Sheet=Pending
+  j("WO-1967","Moderate","2026-06-12",true,true),   // Laser Cut Sheet=Pending
 ],
-"Wire & Spot Weld":[
-  {n:"2145-1",p:"Moderate",d:"2026-05-11",l:true},
-  {n:"2239-1",p:"Moderate",d:"2026-05-19",l:true},
-  {n:"2265-1",p:"Moderate",d:"2026-06-04",l:true},
-  {n:"2265-2",p:"Moderate",d:"2026-06-04",l:true},
-  {n:"1521-3",p:"Moderate",d:"2026-06-15",l:true},
+
+"Wire & Spot Weld": [
+  j("2145-1","Moderate","2026-05-11",true),
+  j("2239-1","Moderate","2026-05-19",true),
+  j("2265-1","Moderate","2026-06-04",true),
+  j("2265-2","Moderate","2026-06-04",true),
+  j("1521-3","Moderate","2026-06-15",true),
 ],
-"Shipping":[
-  {n:"1781-1",    p:"High",    d:"2026-03-19",l:true},
-  {n:"2227-3",    p:"High",    d:"2026-05-18",l:true},
-  {n:"2497-1",    p:"High",    d:"2026-05-18",l:true},
-  {n:"1686-1",    p:"Moderate",d:"2026-02-12",l:true},
-  {n:"1471-3",    p:"Moderate",d:"2026-02-13",l:true},
-  {n:"1701-1",    p:"Moderate",d:"2026-03-19",l:true},
-  {n:"1701-2",    p:"Moderate",d:"2026-03-19",l:true},
-  {n:"1701-3",    p:"Moderate",d:"2026-03-19",l:true},
-  {n:"1766-1",    p:"Moderate",d:"2026-03-26",l:true},
-  {n:"1906-1",    p:"Moderate",d:"2026-04-09",l:true},
-  {n:"1905-2",    p:"Moderate",d:"2026-04-16",l:true},
-  {n:"1978-1",    p:"Moderate",d:"2026-04-16",l:true},
-  {n:"1970-2",    p:"Moderate",d:"2026-04-23",l:true},
-  {n:"2129-1",    p:"Moderate",d:"2026-04-30",l:true},
-  {n:"2298-1",    p:"Moderate",d:"2026-05-14",l:true},
-  {n:"2298-2",    p:"Moderate",d:"2026-05-14",l:true},
-  {n:"2210-1",    p:"Moderate",d:"2026-05-18",l:true},
-  {n:"2371-2",    p:"Moderate",d:"2026-05-26",l:true},
-  {n:"2421-2",    p:"Moderate",d:"2026-05-28",l:true},
-  {n:"2421-3",    p:"Moderate",d:"2026-05-28",l:true},
-  {n:"1250-3 - 2",p:"Moderate",d:"2026-06-01",l:false},
-  {n:"1250-5",    p:"Moderate",d:"2026-06-01",l:false},
-  {n:"1250-6 - 2",p:"Moderate",d:"2026-06-01",l:false},
-  {n:"1250-7 - 2",p:"Moderate",d:"2026-06-01",l:false},
-  {n:"7310",      p:"Moderate",d:"2026-06-12",l:false},
-  {n:"2626-4",    p:"Moderate",d:"2026-06-11",l:true},
-  {n:"1947-1",    p:"Moderate",d:"2026-06-09",l:false},
-  {n:"WO-1751",p:"Moderate",d:"2026-05-18",l:true,wo:true},
-  {n:"WO-1790",p:"Moderate",d:"2026-05-27",l:true,wo:true},
-  {n:"WO-1496",p:"Moderate",d:"2026-04-09",l:true,wo:true},
+
+"Shipping": [
+  j("1781-1","High",    "2026-03-19",true),
+  j("2227-3","High",    "2026-05-18",true),
+  j("2497-1","High",    "2026-05-18",true),
+  j("1686-1","Moderate","2026-02-12",true),
+  j("1471-3","Moderate","2026-02-13",true),
+  j("1701-1","Moderate","2026-03-19",true),
+  j("1701-2","Moderate","2026-03-19",true),
+  j("1701-3","Moderate","2026-03-19",true),
+  j("1766-1","Moderate","2026-03-26",true),
+  j("1906-1","Moderate","2026-04-09",true),
+  j("1905-2","Moderate","2026-04-16",true),
+  j("1978-1","Moderate","2026-04-16",true),
+  j("1970-2","Moderate","2026-04-23",true),
+  j("2129-1","Moderate","2026-04-30",true),
+  j("2298-1","Moderate","2026-05-14",true),
+  j("2298-2","Moderate","2026-05-14",true),
+  j("2210-1","Moderate","2026-05-18",true),
+  j("2371-2","Moderate","2026-05-26",true),
+  j("2421-2","Moderate","2026-05-28",true),
+  j("2421-3","Moderate","2026-05-28",true),
+  j("1250-3 - 2","Moderate","2026-06-01",false),
+  j("1250-5",    "Moderate","2026-06-01",false),
+  j("1250-6 - 2","Moderate","2026-06-01",false),
+  j("1250-7 - 2","Moderate","2026-06-01",false),
+  j("7310",      "Moderate","2026-06-12",false),
+  j("2477-1",    "Moderate","2026-06-24",false),
+  j("2626-4",    "Moderate","2026-06-11",true),
+  // Work orders with active Palletize ops (verified):
+  j("WO-1496","Moderate","2026-04-09",true,true),
+  j("WO-1656","Moderate","2026-04-16",true,true),
+  j("WO-1758","Moderate","2026-05-11",true,true),
+  j("WO-1790","Moderate","2026-05-27",true,true),
+  j("WO-1751","Moderate","2026-05-18",true,true),  // Palletize=Ready (also Hot For Coating)
 ],
 };
 
 const WCS=[
-  {n:"Welding",c:"#7a1a1a"},{n:"Weld Ag/RACS",c:"#1a5a28"},
-  {n:"Brake & Bend",c:"#1a2a6b"},{n:"Cut Bar & Chop Saw",c:"#3a1a6b"},
-  {n:"Hot For Coating",c:"#7a4a0a"},{n:"Punch, Nip & Roll",c:"#6b1a4a"},
-  {n:"Turret",c:"#2a2a3a"},{n:"Shear",c:"#0e4a4a"},
-  {n:"Tube Laser",c:"#1a2a6b"},{n:"Sheet Laser",c:"#0e5a2a"},
-  {n:"Wire & Spot Weld",c:"#5a4a0a"},{n:"Shipping",c:"#1a5a1a"},
+  {n:"Welding",       c:"#7a1a1a"},
+  {n:"Weld Ag/RACS",  c:"#1a5a28"},
+  {n:"Brake & Bend",  c:"#1a2a6b"},
+  {n:"Cut Bar & Chop Saw", c:"#3a1a6b"},
+  {n:"Hot For Coating",c:"#7a4a0a"},
+  {n:"Punch, Nip & Roll",c:"#6b1a4a"},
+  {n:"Turret",        c:"#2a2a3a"},
+  {n:"Shear",         c:"#0e4a4a"},
+  {n:"Tube Laser",    c:"#1a2a6b"},
+  {n:"Sheet Laser",   c:"#0e5a2a"},
+  {n:"Wire & Spot Weld",c:"#5a4a0a"},
+  {n:"Shipping",      c:"#1a5a1a"},
 ];
 
+// Stats: count unique JOBS (not WOs), late jobs, high priority jobs
+(function computeStats(){
+  const seen=new Set(), lateSeen=new Set(), hiSeen=new Set();
+  WCS.forEach(({n})=>(RAW[n]||[]).forEach(it=>{
+    if(it.wo) return;
+    seen.add(it.n);
+    if(it.l) lateSeen.add(it.n);
+    if(it.p==='High') hiSeen.add(it.n);
+  }));
+  window.__STATS={late:lateSeen.size, total:seen.size, hi:hiSeen.size};
+})();
+
 function srt(a){return[...a].sort((x,y)=>{
-  const wx=(x.wo?1:0),wy=(y.wo?1:0);if(wx!==wy)return wx-wy;
-  const lx=(x.l?0:1),ly=(y.l?0:1);if(lx!==ly)return lx-ly;
-  const px=(PORD[x.p]??1),py=(PORD[y.p]??1);if(px!==py)return px-py;
+  // jobs AND work orders sorted together: late first, then priority, then due date
+  const lx=(x.l?0:1), ly=(y.l?0:1); if(lx!==ly) return lx-ly;
+  const px=(PORD[x.p]??1), py=(PORD[y.p]??1); if(px!==py) return px-py;
   return(x.d||'').localeCompare(y.d||'');
 });}
-function fD(d){if(!d)return'';const t=new Date(d);return(t.getMonth()+1)+'/'+t.getDate();}
+function fD(d){if(!d)return''; const t=new Date(d); return(t.getMonth()+1)+'/'+t.getDate();}
 
-const SORTED={},shown={};
-WCS.forEach(({n})=>{SORTED[n]=srt(RAW[n]||[]);shown[n]=PAGE;});
-document.getElementById('s-late').textContent=STATS.late;
-document.getElementById('s-total').textContent=STATS.total;
-document.getElementById('s-hi').textContent=STATS.hi;
+const SORTED={}, shown={};
+WCS.forEach(({n})=>{SORTED[n]=srt(RAW[n]||[]); shown[n]=PAGE;});
+
+document.getElementById('s-late').textContent=window.__STATS.late;
+document.getElementById('s-total').textContent=window.__STATS.total;
+document.getElementById('s-hi').textContent=window.__STATS.hi;
 document.getElementById('upd').textContent='Data: '+DATA_UPDATED;
 
-let assigns={},curJob=null;
-function pCls(j){return j.wo?'wo':(j.p==='High'?'hi':'mo');}
+let assigns={}, curJob=null;
+function pCls(it){return it.wo?'wo':(it.p==='High'?'hi':'mo');}
 
 function render(){
   document.getElementById('board').innerHTML=WCS.map(({n,c})=>{
-    const all=SORTED[n],tot=all.length;
-    const lc=all.filter(j=>j.l).length,wc=all.filter(j=>j.wo).length;
-    const lim=Math.min(shown[n],tot),vis=all.slice(0,lim),rem=tot-lim;
-    const rows=tot===0?'<div class="cempty">No active jobs</div>':vis.map(j=>{
-      const indicCls=j.wo?'wo':(j.p==='High'?'hi':'mo');
-      return`<div class="jrow ${pCls(j)} ${j.l?'late':''}">
-        ${j.l?'<span class="late-dot"></span>':''}
-        <span class="jindic ${indicCls}"></span>
-        <span class="jnum" title="${j.n}">${j.n}</span>
-        <span class="jdue ${j.l?'late':''}">${fD(j.d)}</span>
-      </div>`;
-    }).join('');
-    const more=rem>0?`<div class="cmore" onclick="showMore('${n}')">&#9662; ${rem} more</div>`:(lim>PAGE?`<div class="cmore" onclick="showLess('${n}')">&#9652; less</div>`:'');
+    const all=SORTED[n], tot=all.length;
+    const lc=all.filter(it=>it.l).length, wc=all.filter(it=>it.wo).length;
+    const lim=Math.min(shown[n],tot), vis=all.slice(0,lim), rem=tot-lim;
+    const rows=tot===0
+      ?'<div class="cempty">No active jobs</div>'
+      :vis.map(it=>{
+        const indicCls=it.wo?'wo':(it.p==='High'?'hi':'mo');
+        return`<div class="jrow ${pCls(it)} ${it.l?'late':''}">
+          ${it.l?'<span class="late-dot"></span>':''}
+          <span class="jindic ${indicCls}"></span>
+          <span class="jnum" title="${it.n}">${it.n}</span>
+          <span class="jdue ${it.l?'late':''}">${fD(it.d)}</span>
+        </div>`;
+      }).join('');
+    const more=rem>0
+      ?`<div class="cmore" onclick="showMore('${n}')">&#9662; ${rem} more</div>`
+      :(lim>PAGE?`<div class="cmore" onclick="showLess('${n}')">&#9652; less</div>`:'');
     const lb=lc>0?`<span class="clc">${lc}&#9888;</span>`:'';
     const wb=wc>0?`<span class="cwo">${wc}WO</span>`:'';
     return`<div class="col">
       <div class="accent" style="background:${c}"></div>
-      <div class="chdr"><span class="cname">${n}</span><span class="cmeta"><span class="ctot">${tot}</span>${wb}${lb}</span></div>
+      <div class="chdr">
+        <span class="cname">${n}</span>
+        <span class="cmeta"><span class="ctot">${tot}</span>${wb}${lb}</span>
+      </div>
       <div class="cjobs">${rows}</div>${more}
     </div>`;
   }).join('');
 }
-function showMore(n){shown[n]+=PAGE;render();}
-function showLess(n){shown[n]=PAGE;render();}
+
+function showMore(n){shown[n]+=PAGE; render();}
+function showLess(n){shown[n]=PAGE; render();}
 function openM(name){
   curJob=name;
   document.getElementById('msub').textContent=(name.startsWith('WO-')?'Work Order ':'Job ')+name;
@@ -449,8 +498,9 @@ function openM(name){
   ).join('');
   document.getElementById('modal').classList.add('open');
 }
-function pickE(e){if(curJob){if(e==='— Unassign')delete assigns[curJob];else assigns[curJob]=e;}closeM();render();}
-function closeM(){document.getElementById('modal').classList.remove('open');curJob=null;}
+function pickE(e){if(curJob){if(e==='— Unassign')delete assigns[curJob]; else assigns[curJob]=e;} closeM(); render();}
+function closeM(){document.getElementById('modal').classList.remove('open'); curJob=null;}
+
 setInterval(()=>{document.getElementById('clk').textContent=new Date().toLocaleTimeString('en-US',{hour12:false});},1000);
 document.getElementById('clk').textContent=new Date().toLocaleTimeString('en-US',{hour12:false});
 render();
